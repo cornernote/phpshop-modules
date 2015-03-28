@@ -1,0 +1,141 @@
+<?php
+// +----------------------------------------------------------------------+
+// | X-Stats                                                              |
+// | Copyright (c) 2001 BrettODonnell.com. All rights reserved.           |
+// +----------------------------------------------------------------------+
+// | The contents of this file are subject to the Mozilla Public License  |
+// | Version 1.1 (the "License"); you may not use this file except in     |
+// | compliance with the License. You may obtain a copy of the License at |
+// | http://www.mozilla.org/MPL/                                          |
+// |                                                                      |
+// | Software distributed under the License is distributed on an "AS IS"  |
+// | basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See  |
+// | the License for the specific language governing rights and           |
+// | limitations under the License.                                       |
+// |                                                                      |
+// | The Original Code is X-Stats.                                        |
+// |                                                                      |
+// | The Initial Developer of the Original Code is BrettODonnell.com.     |
+// | Portions created by BrettODonnell.com are Copyright (C) 2001         |
+// | BrettODonnell.com. All Rights Reserved.                              |
+// +----------------------------------------------------------------------+
+
+
+
+if(!$title){ $title=$xstats_lbl["recent"]; }
+print_box_top($title); 
+
+
+if(!$offset){ $offset=0; }
+
+$db=new ps_DB;
+$db1=new ps_DB;
+
+$q = "SELECT * FROM session_stats ";
+$q.= "GROUP BY sid ";
+$q.= "ORDER BY start_time DESC ";
+$list = $q." LIMIT $offset, " . SEARCH_ROWS;
+$db->query($q);
+$num_rows=$db->num_rows();
+$db->query($list);
+
+echo "<table width=100% border=0 cellpadding=5 cellspacing=0><tr>";
+echo "<th>". $xstats_lbl["action"] ."</th>";
+echo "<th>". $xstats_lbl["addr"] ."</th>";
+echo "<th>". $xstats_lbl["browser"] ." / ". $xstats_lbl["os"] ."</th>";
+echo "<th>". $xstats_lbl["start_time"] ."</th>";
+if(!$where){
+  echo "<th>". $xstats_lbl["visit_time"] ."</th>";
+  echo "<th>". $xstats_lbl["pages"] ."</th>";
+}
+echo "</tr>";
+
+while($db->next_record())
+{
+  $sid=$db->f("sid");
+  $browser_image=$db->f("browser_image");
+  $os_image=$db->f("os_image");
+  $addr=$db->f("addr");
+  if($addr==$REMOTE_ADDR){ $addr=$addr ." <br>(this is you)"; }
+
+  $db1->query("select count(*) as num_pages from session_stats where sid='$sid'");
+  $db1->next_record();
+  $num_pages=$db1->f("num_pages");
+
+  $db1->query("select * from session_stats where sid='$sid'");
+  $db1->next_record();
+  $start_time=$db1->f("start_time");
+  if($db1->num_rows()>1){
+    while($db1->next_record()){ $end_time=$db1->f("start_time"); }
+  }else{ $end_time=$start_time; }
+
+
+  $visit_length=$ps_xstats->time_difference($start_time,$end_time);
+  $last_page_time=$ps_xstats->time_difference($end_time);
+
+  if($last_page_time<5)
+  {
+    $chat_url=$sess->url(URL . "?page=xstats/visitors&offset=$offset&func=pageShopper&page_sid=$sid");
+    $chat_url="<br><a href=$chat_url>". $xstats_lbl["chat"] ."</a>";
+  }else{ $chat_url=""; }
+
+  $view_url=$sess->url(URL . "?page=xstats/user_pages&sid=$sid");
+
+  print "<tr><td><font size=-2><a href=$view_url>". $xstats_lbl["visit_detail"] ."</a> $chat_url </font></td><td>$addr</td><td align=center><img src=shop_image/xstats/$browser_image.gif> / <img src=shop_image/xstats/$os_image.gif></td><td>$start_time</td>";
+  if(!$where){
+    echo "<td align=center>$visit_length mins</td><td align=center>$num_pages</td>";
+  }
+  echo "</tr>";
+}
+
+echo "</table>";
+
+print_box_bottom();
+
+
+echo "<center>";
+
+   // Check to see if we need to have previous button
+   if ($offset >= SEARCH_ROWS) {
+     $prevoffset=$offset-SEARCH_ROWS;
+     echo "<A HREF=";
+     $sess->purl(URL . "?page=xstats/visitors&offset=$prevoffset");
+     echo ">PREV</A>&nbsp;";
+   }
+
+   // Get total pages
+   $num_pages = intval($num_rows / SEARCH_ROWS);
+   if ($num_rows % SEARCH_ROWS) {
+      $num_pages++;
+   }
+   if ($num_pages != 1)
+     for ($i=1;$i<=$num_pages;$i++) {
+        if (($offset < $i*SEARCH_ROWS) && ($offset >= ($i-1)*SEARCH_ROWS)) {
+           $pagenumber = "<FONT SIZE=+2>$i</FONT>";
+        }
+        else
+           $pagenumber = $i;
+
+        $newoffset = SEARCH_ROWS * ($i-1);
+        echo "<A HREF=";
+        $sess->purl(URL . "?page=xstats/visitors&offset=$newoffset");
+        echo ">$pagenumber</A>&nbsp;";
+        $ii++;
+        if($ii==10){$ii=0; echo "<br>";}
+     }
+   
+   if (($offset+SEARCH_ROWS < $num_rows) && $num_pages != 1) {
+      $newoffset = $offset + SEARCH_ROWS;
+      echo "<A HREF=";
+      $sess->purl(URL . "?page=xstats/visitors&offset=$newoffset");
+      echo ">NEXT</A>\n";
+   }
+
+
+echo "</center>";
+?>
+
+
+<p align=center>
+<a href=http://www.brettodonnell.com>This php-Shop Module was designed by Brett O'Donnell</a>
+</p>

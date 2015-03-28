@@ -1,0 +1,35 @@
+--------------------------
+Mini Cart for phpShop v0.6
+--------------------------
+
+
+----
+Info
+----
+
+Module designed by Mr PHP
+W: www.mrphp.com.au
+E: info@mrphp.com.au
+P: +61 418 436 690
+
+
+-----------
+Description
+-----------
+
+This file contains extra code for your shop header (or any page really) so that you can display a small table with the shopping cart total and a link to checkout.
+
+
+--------------------
+Install Instructions
+--------------------
+
+1. Copy minicart.ihtml into /phpshop/modules/templates/
+
+2. Insert this code into the file templates/s_header.ihtml
+(or wherever you want the mini cart)
+-------------------------------------------------
+<?php require(MODROOT."templates/minicart.ihtml"); ?>
+-------------------------------------------------
+
+3. Add somthing to your cart to see your mini cart.

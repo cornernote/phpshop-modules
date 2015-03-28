@@ -1,0 +1,507 @@
+<?php
+// ----------------------------------------------------------------------
+// WYSIWYG Product Editor
+// ----------------------------------------------------------------------
+// Module designed by Mr PHP
+// W: www.mrphp.com.au
+// E: info@mrphp.com.au
+// P: +61 418 436 690
+// ----------------------------------------------------------------------
+// LICENSE
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License (GPL)
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// To read the license please visit http://www.gnu.org/copyleft/gpl.html
+// ----------------------------------------------------------------------
+?>
+<script>
+function guardaho(codi){
+<?
+	$mesg1['cat'] = "Aquesta és la funció que has d'adaptar a les teves necessitats.";
+	$mesg1['esp'] = "Esta es la función que tienes que adaptar a tus necesidades.";
+	$mesg1['eng'] = "This is the function you have to adapt to your needs.";
+	echo "\n alert(\"".$mesg1['eng']."\");";
+	$mesg1['cat'] = "El codi generat és:\\n\\n";
+	$mesg1['esp'] = "El código generado es:\\n\\n";
+	$mesg1['eng'] = "The generated code is:\\n\\n";
+	echo "\n alert(\"".$mesg1['eng']."\"+codi);";
+?>
+}
+</script>
+
+<form method="post" action="<?php $sess->purl(SECUREURL) ?>" name="myform_doc_html" enctype="multipart/form-data">
+  <table width="100%" border="0" cellspacing="0" cellpadding="2">
+    <tr>
+      <td colspan="2">
+        <H2><B><?php
+if ($product_parent_id = $vars["product_parent_id"]) {
+  if ($product_id = $vars["product_id"]) {
+    $action = $product_form_update_item_lbl;
+    } else {
+      $action = $product_form_new_item_lbl;
+    }
+  $info_label = $product_form_item_info_lbl;
+  $status_label = $product_form_item_status_lbl;
+  $dim_weight_label = $product_form_item_dim_weight_lbl;
+  $images_label = $product_form_item_images_lbl;
+  $delete_message = $product_form_delete_item_msg;
+} else {
+  if ($product_id = $vars["product_id"]) {
+    $action = $product_form_update_product_lbl;
+      } else {
+        $action = $product_form_new_product_lbl;
+      }
+  $info_label = $product_form_product_info_lbl;
+  $status_label = $product_form_product_status_lbl;
+  $dim_weight_label = $product_form_product_dim_weight_lbl;
+  $images_label = $product_form_product_images_lbl;
+  $delete_message = $product_form_delete_product_msg;
+}
+echo "$action";
+?>
+<?php
+if ($product_id) {
+  $db = $ps_product->sql($product_id);
+  $db->next_record();
+}
+elseif (!$vars["error"]) {
+  $default["product_publish"] = "Y";
+  $default["product_weight_uom"] = "pounds";
+  $default["product_lwh_uom"] = "inches";
+}
+?></B></H2>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2"><b><?php echo $info_label ?></b>
+        <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
+        <input type="hidden" name="product_parent_id" value="<?php echo $product_parent_id; ?>">
+        <input type="hidden" name="func" value="<?php if ($product_id) { echo "productUpdate";} else {echo "productAdd";} ?>">
+        <input type="hidden" name="page" value="<?php echo $modulename?>/product_display">
+      </td>
+    </tr>
+    <tr>
+      <td width="21%" >
+        <div align="right"><?php echo $product_form_sku ?>:</div>
+      </td>
+      <td width="79%" height="2">
+        <input type="text" name="product_sku" value="<?php $db->sp("product_sku"); ?>" size="32" maxlength="64">
+      </td>
+    </tr>
+    <tr>
+      <td width="21%" height="18">
+        <div align="right"><?php echo $product_form_name ?>:</div>
+      </td>
+      <td width="79%" height="18" >
+        <input type="text" name="product_name" value="<?php $db->sp("product_name"); ?>" size="32" maxlength="255">
+      </td>
+    </tr>
+    <tr>
+      <td width="21%">
+        <div align="right"><?php echo $product_form_url ?>:</div>
+      </td>
+      <td width="79%">
+        <input type="text" name="product_url" value="<?php $db->sp("product_url"); ?>" size="32" maxlength="255">
+      </td>
+    </tr>
+    <tr>
+      <td width="21%">
+        <div align="right"><?php
+if (!$product_parent_id) {
+?><?php echo $product_form_category ?>:</div>
+      </td>
+      <td width="79%" ><?php
+$ps_product_category->list_category($product_id,$db->sf("category_id"));
+}
+?></td>
+    </tr>
+    <tr>
+      <td width="21%" >
+        <div align="right"><?php echo $product_form_price ?>:</div>
+      </td>
+      <td width="79%" > <?php
+if ($product_id) {
+  $price = $ps_product->get_price($product_id);
+  $url  = SECUREURL . "?page=$modulename/product_price_list&product_id=$product_id&product_parent_id=$product_parent_id";
+  $url .= "&return_args=" . urlencode("page=$page&product_id=$product_id&product_parent_id=$product_parent_id");
+  echo "<A HREF=" . $sess->url($url) . ">";
+  if ($price) {
+    if ($price["item"]) {
+      echo $price["product_price"];
+    } else {
+      echo "none";
+    }
+  } else {
+    echo "none";
+  }
+  echo "</A>";
+} else {
+  echo "none";
+}
+?> </td>
+    </tr>
+    <tr>
+      <td width="21%">&nbsp;</td>
+      <td width="79%">&nbsp;</td>
+    </tr>
+    <tr>
+      <td width="21%"  valign="top">
+        <div align="right"><?php echo $product_form_s_desc ?>:</div>
+      </td>
+      <td width="79%"  valign="top">
+<?php
+// Paràmetres del wysiwyg_web_edit:
+$nom_editor = "product_s_desc";
+$idi_edit = 'eng';
+$editor_height = 100;
+$editor_width= 500;
+//$funcio_save= 'guardaho(codi);';
+$action_submit = "index.php";
+$document_complet = 0;
+$content_inicial = $db->sf("product_s_desc");
+include $base_dir."modules/product/lib/wysiwyg_web_edit.inc";
+?>
+<!--
+<textarea name="product_s_desc" cols="50" rows="6" wrap="VIRTUAL">
+<?php $db->sp("product_s_desc"); ?>
+</textarea>
+-->
+      </td>
+    </tr>
+    <tr>
+      <td width="21%"  valign="top">
+        <div align="right"><?php echo $product_form_description ?>:</div>
+      </td>
+      <td width="79%"  valign="top">
+<?php
+// Paràmetres del wysiwyg_web_edit:
+$nom_editor = "product_desc";
+$idi_edit = 'eng';
+$editor_height = 300;
+$editor_width= 500;
+//$funcio_save= 'guardaho(codi);';
+$action_submit = "index.php";
+$document_complet = 0;
+$content_inicial = $db->sf("product_desc");
+include $base_dir."modules/product/lib/wysiwyg_web_edit.inc";
+?>
+<!--
+<textarea name="product_desc" cols="50" rows="10" wrap="VIRTUAL">
+<?php $db->sp("product_desc"); ?>
+</textarea>
+-->
+      </td>
+    </tr>
+  </table>
+  <table width="100%" border="0" cellspacing="0" cellpadding="2">
+    <tr>
+      <td colspan="2" height="2" >&nbsp;</td>
+    </tr>
+    <tr>
+      <td colspan="2" height="2"><b><?php echo $status_label ?></b></td>
+    </tr>
+    <tr>
+      <td width="21%" height="2" >
+        <div align="right"><?php echo $product_form_in_stock ?>:</div>
+      </td>
+      <td width="79%" height="2" >
+        <input type="text" name="product_in_stock" value="<?php $db->sp("product_in_stock"); ?>" size="10">
+      </td>
+    </tr>
+    <tr>
+      <td width="21%" >
+        <div align="right"><?php echo $product_form_available_date ?>:</div>
+      </td>
+      <td width="79%" > <?php
+echo "<input type=text name=product_available_date size=11 value=\"";
+if ($vars["product_available_date"]) {
+  echo $vars["product_available_date"];
+} elseif ($db->f("product_available_date")) {
+  echo date("m/j/Y",$db->f("product_available_date"));
+}
+echo "\">";
+?> MM/DD/YYYY</td>
+    </tr>
+    <tr>
+      <td width="21%" >
+        <div align="right"><?php echo $product_form_special ?>:</div>
+      </td>
+      <td width="79%" >
+        <input type="text" name="product_special" value="<?php $db->sp("product_special"); ?>" size="2" maxlength="1">
+      </td>
+    </tr>
+    <tr>
+      <td width="21%" >
+        <div align="right"><?php echo $product_form_discount_type ?>:</div>
+      </td>
+      <td width="79%" >
+        <input type="text" name="product_discount_id" value="<?php $db->sp("product_discount_id"); ?>" size="10">
+      </td>
+    </tr>
+    <tr>
+      <td width="21%" >
+        <div align="right"><?php echo $product_form_publish ?>:</div>
+      </td>
+      <td width="79%" > <?php if ($db->sf("product_publish")=="Y") {
+    echo "<input type=checkbox name=product_publish value=Y checked>";
+}
+else {
+    echo "<input type=checkbox name=product_publish value=Y>";
+}
+?> </td>
+    </tr>
+  </table>
+  <?php
+$db_items = $ps_product->items_sql($product_id);
+if (!$product_parent_id and $product_id and $db_items->num_rows() > 0) {
+?>
+  <table width="100%" border="0" cellspacing="0" cellpadding="2">
+    <tr>
+      <td colspan="4">&nbsp;</td>
+    </tr>
+    <tr>
+      <td colspan="4"><b><?php echo $product_form_product_items_lbl ?></b></td>
+    </tr>
+    <tr nowrap>
+      <td><?php echo $product_form_name ?></td>
+      <td><?php echo $product_form_sku ?></td>
+      <td><?php echo $product_form_price ?></td>
+      <?php
+  $db_heading = $ps_product->attribute_sql("",$product_id);
+  while ($db_heading->next_record()) {
+?>
+      <td><?php echo $db_heading->sf("attribute_name"); ?></td>
+      <?php
+  }
+?> </tr>
+    <tr>
+      <td colspan="<?php echo $db_heading->num_rows() + 3 ?>">
+        <hr size="1">
+      </td>
+    </tr>
+    <?php
+  while ($db_items->next_record()) {
+?>
+    <tr nowrap>
+      <td> <?php
+    $url = SECUREURL . "?page=$modulename/product_form&product_id=" . $db_items->f("product_id") . "&product_parent_id=$product_id";
+    echo "<A HREF=\"" . $sess->url($url) . "\">";
+    echo $db_items->f("product_name");
+    echo "</A>";
+?> </td>
+      <td><?php $db_items->sp("product_sku"); ?> </td>
+      <td> <?php
+    $price = $ps_product->get_price($db_items->f("product_id"));
+    $url  = SECUREURL . "?page=$modulename/product_price_list&product_id=" . $db_items->f("product_id") . "&product_parent_id=$product_parent_id";
+    $url .= "&return_args=" . urlencode("page=$page&product_id=$product_id");
+    echo "<A HREF=" . $sess->url($url) . ">";
+    if ($price) {
+      if ($price["item"]) {
+        echo $price["product_price"];
+      } else {
+        echo "none";
+      }
+    } else {
+      echo "none";
+    }
+    echo "</A>";
+?> </td>
+      <?php
+    $db_detail = $ps_product->attribute_sql($db_items->f("product_id"),$product_id);
+    while ($db_detail->next_record()) {
+?>
+      <td><?php $db_detail->p("attribute_value"); ?></td>
+      <?php
+    }
+?> </tr>
+    <?php
+  }
+?>
+  </table>
+  <?php
+} elseif ($product_parent_id) {
+?>
+  <table width="100%" border="0" cellspacing="0" cellpadding="2">
+    <tr>
+      <td colspan="2">&nbsp;</td>
+    </tr>
+    <tr>
+      <td colspan="2"><b><?php echo $product_form_item_attributes_lbl ?></b></td>
+    </tr>
+    <?php
+  if ($product_id) {
+    $db_attribute = $ps_product->attribute_sql($product_id,$product_parent_id);
+  } else {
+    $db_attribute = $ps_product->attribute_sql("",$product_parent_id);
+  }
+  $num = 0;
+  while ($db_attribute->next_record()) {
+    $num++; ?>
+    <tr nowrap>
+      <td width="21%" height="22" >
+        <div align="right"><?php
+  echo $db_attribute->sf("attribute_name") . ":";
+  $field_name = "attribute_$num";
+?></div>
+      </td>
+      <td width="79%" >
+        <input type="text" name="<?php echo $field_name; ?>" size="32" maxlength="255" value="<?php $db_attribute->sp("attribute_value"); ?>">
+      </td>
+    </tr>
+    <?php
+  } ?>
+  </table>
+  <?php
+}
+?>
+  <table width="100%" border="0" cellspacing="0" cellpadding="2">
+    <tr>
+      <td width="21%">&nbsp;</td>
+      <td width="79%">&nbsp;</td>
+    </tr>
+    <tr>
+      <td colspan="2"><b><?php echo $dim_weight_label ?></b>
+      </td>
+    </tr>
+    <tr>
+      <td width="21%" valign="top" >
+        <div align="right"><?php echo $product_form_length ?>:</div>
+      </td>
+      <td width="79%" >
+        <input type="text" name="product_length" value="<?php $db->sp("product_length"); ?>" size="15" maxlength="15">
+      </td>
+    </tr>
+    <tr>
+      <td width="21%" valign="top" >
+        <div align="right"><?php echo $product_form_width ?>:</div>
+      </td>
+      <td width="79%" >
+        <input type="text" name="product_width" value="<?php $db->sp("product_width"); ?>" size="15" maxlength="15">
+      </td>
+    </tr>
+    <tr>
+      <td width="21%" valign="top" >
+        <div align="right"><?php echo $product_form_height ?>:</div>
+      </td>
+      <td width="79%" >
+        <input type="text" name="product_height" value="<?php $db->sp("product_height"); ?>" size="15" maxlength="15">
+      </td>
+    </tr>
+    <tr>
+      <td width="21%" valign="top" >
+        <div align="right"><?php echo $product_form_dimension_uom ?>:</div>
+      </td>
+      <td width="79%" >
+        <input type="text" name="product_lwh_uom" value="<?php $db->sp("product_lwh_uom"); ?>" size="8" maxlength="32">
+      </td>
+    </tr>
+    <tr>
+      <td width="21%" valign="top" >&nbsp;</td>
+      <td width="79%" >&nbsp;</td>
+    </tr>
+    <tr>
+      <td width="21%" valign="top" >
+        <div align="right"><?php echo $product_form_weight ?>:</div>
+      </td>
+      <td width="79%" >
+        <input type="text" name="product_weight" size="15" maxlength="15" value="<?php $db->sp("product_weight"); ?>">
+      </td>
+    </tr>
+    <tr>
+      <td width="21%" valign="top" >
+        <div align="right"><?php echo $product_form_weight_uom ?>:</div>
+      </td>
+      <td width="79%" >
+        <input type="text" name="product_weight_uom" value="<?php $db->sp("product_weight_uom"); ?>" size="8" maxlength="32">
+      </td>
+    </tr>
+  </table>
+  <table width="100%" border="0" cellspacing="0" cellpadding="2">
+    <tr>
+      <td width="21%">&nbsp;</td>
+      <td width="79%">&nbsp;</td>
+    </tr>
+    <tr>
+      <td colspan="2"><b><?php echo $images_label ?></b>
+        <input type="hidden" name="product_thumb_image_curr" value="<?php $db->p("product_thumb_image"); ?>">
+        <input type="hidden" name="product_full_image_curr" value="<?php $db->p("product_full_image"); ?>">
+      </td>
+    </tr>
+    <tr>
+      <td width="21%" >
+        <div align="right"><?php echo $product_form_thumb_image ?>:</div>
+      </td>
+      <td width="79%" ><?php $ps_product->show_image($db->f("product_thumb_image")); ?></td>
+    </tr>
+    <tr>
+      <td width="21%" >&nbsp;</td>
+      <td width="79%" ><?php if ($product_id) {
+  echo $product_form_image_update_lbl . "<br>"; } ?>
+        <input type="file" name="product_thumb_image" size="32" maxlength="255">
+        <?php if ($product_id and $db->f("product_thumb_image")) {
+  echo "<br>" . $product_form_image_delete_lbl; } ?></td>
+    </tr>
+    <tr>
+      <td width="21%" >&nbsp;</td>
+      <td width="79%" >&nbsp;</td>
+    </tr>
+    <tr>
+      <td width="21%" >
+        <div align="right"><?php echo $product_form_full_image ?>:</div>
+      </td>
+      <td width="79%" ><?php $ps_product->show_image($db->f("product_full_image")); ?></td>
+    </tr>
+    <tr>
+      <td width="21%" >&nbsp;</td>
+      <td width="79%" ><?php if ($product_id) {
+  echo $product_form_image_update_lbl . "<br>"; } ?>
+        <input type="file" name="product_full_image" size="32" maxlength="255">
+        <?php if ($product_id and $db->f("product_full_image")) {
+  echo "<br>" . $product_form_image_delete_lbl; } ?></td>
+    </tr>
+    <tr>
+      <td width="21%">&nbsp;</td>
+      <td width="79%">&nbsp;</td>
+    </tr>
+    <tr>
+      <td width="21%">&nbsp;</td>
+      <td width="79%">&nbsp;</td>
+    </tr>
+  </table>
+  <?php if (!$product_id) { ?>
+  <table width="50%" border="0" cellspacing="0" cellpadding="0" align="center">
+    <tr align="center">
+      <td width="50%">
+        <input type="image" border="0" src="/ps_image/save.gif" width="50" height="16" name="image">
+      </td>
+      <td width="50%"><a href="<?php $sess->purl(SECUREURL . "?page=$modulename/product_form&product_parent_id=" . $product_parent_id); ?>"><img src="/ps_image/clear.gif" width="50" height="16" border="0"></a>
+      </td>
+    </tr>
+  </table>
+  <?php
+} else {
+  if ($product_parent_id) {
+    $delete_page = "$modulename/product_form";
+  } else {
+    $delete_page = "$modulename/product_list";
+  }
+?>
+  <table width="50%" border="0" cellspacing="0" cellpadding="0" align="center">
+    <tr align="center">
+      <td width="50%">
+        <input type="image" onclick="product_s_desc_guardar();product_desc_guardar();" border="0" src="/ps_image/save.gif" width="50" height="16" name="image">
+      </td>
+      <td width="50%"><a href="<?php $sess->purl(SECUREURL . "?page=$delete_page&func=productDelete&product_id=$product_id&product_parent_id=$product_parent_id"); ?>" onClick="return confirm('<?php echo $delete_message; ?>')"><img src="/ps_image/delete.gif" width="50" height="16" border="0"></a>
+      </td>
+    </tr>
+  </table>
+  <?php } ?>
+</form>

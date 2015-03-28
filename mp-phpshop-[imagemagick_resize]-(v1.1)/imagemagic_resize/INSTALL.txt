@@ -1,0 +1,146 @@
+------------------------------------
+Image Magick Resize for phpShop v0.6
+------------------------------------
+
+
+----
+Info
+----
+
+Module designed by Mr PHP
+W: www.mrphp.com.au
+E: info@mrphp.com.au
+P: +61 418 436 690
+
+
+-----------
+Description
+-----------
+
+Resizes images and thumbnails to a fixed maximum height and width.
+
+
+--------------------
+Install Instructions
+--------------------
+
+
+
+1. Edit phpshop.cfg
+--[ ADD ]--
+# Image Size
+# ------------------
+# Sets the image size - will work with portrait or landscape images.
+
+"IMAGEMAGICK_PATH"    =>        "/path/to/imagemagick/",
+"IMAGE_SIZE"          =>        "400",
+"THUMB_SIZE"          =>        "100",
+--[ END ]--
+
+
+
+2. Edit modules/shop/html/browse.ihtml
+--[ FIND ]--
+   <?php $ps_product->show_image($db->f("product_thumb_image"),"width=80"); ?>
+--[ CHANGE TO ]--.
+   <?php echo "<IMG BORDER=0 SRC=\"".URL."shop_image/resized/image_resize.php?size=".THUMB_SIZE."&image=".URL.$ps_vendor->get_field($ps_vendor_id,"vendor_image_path")."product/".$db->f("product_thumb_image")."\">"; ?>
+--[ FIND ]--
+  eval(load_class("product", "ps_product_category"));
+  $ps_product_category = new ps_product_category;
+--[ BELOW, INSERT ]--
+  eval(load_class("vendor","ps_vendor"));
+  $ps_vendor = new ps_vendor;
+--[ END ]--
+
+
+
+3. Edit modules/shop/html/flypage.ihtml
+--[ FIND ]--
+    <TD WIDTH=7%> <?php
+      if ($db->f("product_url")) { ?>
+      <a href="<?php echo $db->f("product_url");?>">
+      <?php $ps_product->show_image($db->f("product_full_image"));
+      ?> </a> <?php
+      } else {
+      $ps_product->show_image($db->f("product_full_image"));
+      }
+     ?></TD>
+--[ CHANGE TO ]--.
+    <TD WIDTH=7%> <?php
+      if ($db->f("product_url")) { ?>
+      <a href="<?php echo $db->f("product_url");?>">
+      <?php echo "<IMG BORDER=0 SRC=\"".URL."shop_image/resized/image_resize.php?size=".IMAGE_SIZE."&image=".URL.$ps_vendor->get_field($ps_vendor_id,"vendor_image_path")."product/".$db->f("product_full_image")."\">"; ?></a> <?php
+      } else {
+      echo "<IMG BORDER=0 SRC=\"".URL."shop_image/resized/image_resize.php?size=".IMAGE_SIZE."&image=".URL.$ps_vendor->get_field($ps_vendor_id,"vendor_image_path")."product/".$db->f("product_full_image")."\">";
+      }
+     ?></TD>
+--[ FIND ]--
+eval(load_class("product", "ps_product_attribute"));
+$ps_product_attribute = new ps_product_attribute;
+--[ BELOW, INSERT ]--
+eval(load_class("vendor","ps_vendor"));
+$ps_vendor = new ps_vendor;
+--[ END ]--
+
+
+
+4. Edit modules/product/html/product_display.ihtml
+--[ FIND ]--
+   <?php $ps_product->show_image($db->f("product_thumb_image")); ?>
+--[ CHANGE TO ]--.
+   <?php echo "<IMG BORDER=0 SRC=\"".URL."shop_image/resized/image_resize.php?size=".THUMB_SIZE."&image=".URL.$ps_vendor->get_field($ps_vendor_id,"vendor_image_path")."product/".$db->f("product_thumb_image")."\">"; ?>
+--[ FIND ]--
+   <?php $ps_product->show_image($db->f("product_full_image")); ?>
+--[ CHANGE TO ]--.
+   <?php echo "<IMG BORDER=0 SRC=\"".URL."shop_image/resized/image_resize.php?size=".THUMB_SIZE."&image=".URL.$ps_vendor->get_field($ps_vendor_id,"vendor_image_path")."product/".$db->f("product_full_image")."\">"; ?>
+--[ END ]--
+
+
+
+5. Edit image_resize.php - set the $base_dir (same as the $base_dir from your phpshop index.php)
+
+
+
+6. Create a directory inside shop_image called "resized".
+
+
+
+7. CHMOD or CHOWN the "resized" directory so that the web server can write to it.  If you do not know how to do this then just do "chmod 777 resized".
+
+
+
+8. Upload image_resize.php to the "resized" directory.
+
+
+
+------------
+--OPTIONAL--
+------------
+
+If you no longer wish to use the thumb nail upload function of phpshop then follow these steps:
+
+
+
+9. Edit modules/product/html/product_form.ihtml
+
+--[ REMOVE ]--
+    <tr>
+      <td width="21%" >
+        <div align="right"><?php echo $product_form_thumb_image ?>:</div>
+      </td>
+      <td width="79%" ><?php $ps_product->show_image($db->f("product_thumb_image")); ?></td>
+    </tr>
+--[ END ]--
+
+
+
+10. Edit the following files:
+ - modules/product/html/product_form.ihtml 
+ - modules/product/html/product_display.ihtml
+ - modules/shop/html/flypage.ihtml
+ - modules/shop/html/browse.ihtml
+--[ FIND ]--
+   $db->f("product_thumb_image")
+--[ CHANGE TO ]--.
+   $db->f("product_full_image")
+--[ END ]--

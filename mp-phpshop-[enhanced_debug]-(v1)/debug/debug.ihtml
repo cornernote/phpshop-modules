@@ -1,0 +1,172 @@
+<?php
+// ----------------------------------------------------------------------
+// Debug
+// ----------------------------------------------------------------------
+// Module designed by Mr PHP
+// W: www.mrphp.com.au
+// E: info@mrphp.com.au
+// P: +61 418 436 690
+// ----------------------------------------------------------------------
+// LICENSE
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License (GPL)
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// To read the license please visit http://www.gnu.org/copyleft/gpl.html
+// ----------------------------------------------------------------------
+
+function show_array($array,$parent=""){
+  while( list($index,$key) = each($array) ) {
+    $index="['$index']";
+    if (is_array($key)) show_array($key,"$parent$index");
+    else print "$parent$index=$key<br>";
+  }
+}
+
+?>
+<table width="100%" border="0" cellspacing="0" cellpadding="6" bgcolor="#FF0000">
+  <tr>
+    <td>
+      <table width="100%" border="0" cellspacing="0" cellpadding="2" bgcolor="#999999">
+        <tr nowrap>
+          <td nowrap colspan="4" align="center"><font face="Arial, Helvetica, sans-serif"><b><font face="Verdana, Arial, Helvetica, sans-serif" color="#000099">--DEBUG--</font></b></font></td>
+        </tr>
+        <tr nowrap>
+          <td nowrap align="right" width="14%"><font face="Arial, Helvetica, sans-serif" size="-2"><b><font face="Verdana, Arial, Helvetica, sans-serif" color="#000099">RunTime:</font></b></font></td>
+          <td align="left" nowrap width="32%"><font color="#000099" size="-2"><font face="Verdana, Arial, Helvetica, sans-serif"><font color="#000000"><?php echo $runtime; ?>&nbsp;</font></font></font></td>
+          <td width="18%" align="right" valign="top"><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif" size="-2"><b>Current
+            Page:</b></font></td>
+          <td width="36%" valign="top"><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif" size="-2"><b><b><font color="#FFFFFF"><?php echo $page; ?></font></b></b></font></td>
+        </tr>
+        <tr nowrap>
+          <td width="14%" align="right" valign="top" nowrap><font color="#000099" size="-2"><b><font face="Verdana, Arial, Helvetica, sans-serif">SessionID:</font></b></font></td>
+          <td width="32%" valign="top" nowrap><font color="#000099" size="-2"><b><font face="Verdana, Arial, Helvetica, sans-serif"><font color="#FFFFFF">
+            <?php echo $sess->sessid; ?></font></font></b></font></td>
+          <td width="18%" align="right" valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="-2" color="#000099"><b>Last
+            Page:</b></font></td>
+          <td width="36%" valign="top"><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif" size="-2"><b><font color="#FFFFFF"><?php echo $last_page; ?>&nbsp;</font></b></font></td>
+        </tr>
+        <tr nowrap>
+          <td width="14%" align="right" nowrap valign="top"><font color="#000099" size="-2"><b><font face="Verdana, Arial, Helvetica, sans-serif">UID:</font></b></font></td>
+          <td width="32%" nowrap valign="top"><font color="#000099" size="-2"><b><font face="Verdana, Arial, Helvetica, sans-serif"><font color="#FFFFFF">
+            <?php echo $auth["user_id"]; ?>&nbsp;</font></font></b></font></td>
+          <td width="18%" align="right" valign="top"><font face="Verdana, Arial, Helvetica, sans-serif" size="-2" color="#000099"><b>Return
+            To Page:</b></font></td>
+          <td width="36%" valign="top"><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif" size="-2"><b><font color="#FFFFFF"><?php echo $return_to_page; ?>&nbsp;</font></b></font></td>
+        </tr>
+        <tr nowrap>
+          <td width="14%" align="right" valign="top"><font color="#000099" size="-2"><b><font face="Verdana, Arial, Helvetica, sans-serif">Username:</font></b></font></td>
+          <td width="32%" valign="top"><font color="#000099" size="-2"><b><font face="Verdana, Arial, Helvetica, sans-serif"><font color="#FFFFFF"><?php echo $auth["username"]; ?>&nbsp;</font></font></b></font></td>
+          <td width="18%" align="right" valign="top"><font size="-2"><b><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif">Function:</font></b></font></td>
+          <td width="36%" valign="top"><font size="-2"><b><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif"><font color="#FFFFFF">
+            <?php echo $func;?>&nbsp;</font></font></b></font></td>
+        </tr>
+        <tr nowrap>
+          <td width="14%" align="right" valign="top"><font color="#000099" size="-2"><b><font face="Verdana, Arial, Helvetica, sans-serif">Perms:</font></b></font></td>
+          <td width="32%" valign="top"><font color="#000099" size="-2"><b><font face="Verdana, Arial, Helvetica, sans-serif"><font color="#FFFFFF">
+            <?php echo $auth["perms"]; ?>&nbsp;</font></font></b></font></td>
+          <td width="18%" align="right" valign="top"><font color="#000099" size="-2"><b>&nbsp;&nbsp;</b></font><font face="Verdana, Arial, Helvetica, sans-serif" size="-2" color="#000099"><b>Command:</b></font></td>
+          <td width="36%" valign="top"><font color="#000099" size="-2"><b><font face="Verdana, Arial, Helvetica, sans-serif"><font color="#FFFFFF">
+            <?php echo $cmd."<BR>Result:";
+                  if ($ok)
+                     echo "True";
+                  else
+                     echo "False"; ?> </font></font> &nbsp;</b></font></td>
+        </tr>
+        <tr nowrap>
+          <td width="14%" align="right" valign="top"><font size="-2"><b><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif">$func_perms:</font></b></font></td>
+          <td width="32%" valign="top"><font size="-2"><b><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif"><font color="#FFFFFF"><?php echo $func_list["perms"]; ?>&nbsp;</font></font></b></font></td>
+          <td width="18%" align="right" valign="top"><font color="#000099" size="-2"><b>&nbsp;&nbsp;</b></font><font face="Verdana, Arial, Helvetica, sans-serif" size="-2" color="#000099"><b>$ps_vendor_id:</b></font></td>
+          <td width="36%" valign="top"><font color="#000099" size="-2"><b><font face="Verdana, Arial, Helvetica, sans-serif"><font color="#FFFFFF"><?php
+echo $ps_vendor_id;
+?></font></font> &nbsp;&nbsp;</b></font></td>
+        </tr>
+        <tr>
+          <td width="14%" align="right" valign="top"><font color="#000099" size="-2"><b>&nbsp;&nbsp;</b></font><font face="Verdana, Arial, Helvetica, sans-serif" size="-2" color="#000099"><b>$dir_perms:</b></font></td>
+          <td width="32%" valign="top"><font color="#000099" size="-2"><b><font face="Verdana, Arial, Helvetica, sans-serif"><font color="#FFFFFF"><?php echo $dir_list["perms"]; ?>&nbsp;</font></font></b></font></td>
+          <td width="18%" align="right" valign="top"><font color="#000099" size="-2"><b>&nbsp;&nbsp;</b></font><font face="Verdana, Arial, Helvetica, sans-serif" size="-2" color="#000099"><b>$error:</b></font></td>
+          <td width="36%" valign="top"><font color="#000099" size="-2"><b><font face="Verdana, Arial, Helvetica, sans-serif"><font color="#FFFFFF"><?php
+echo $error;
+?></font></font> &nbsp;&nbsp;</b></font></td>
+        </tr>
+        <tr>
+          <td align="right" width="14%"><font face="Verdana, Arial, Helvetica, sans-serif" size="-2" color="#000099"><b>$cart:</b></font>
+          </td>
+          <td width="32%"><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif" size="-2"><b><b><font color="#FFFFFF"><?php   for ($i=0;$i<$cart["idx"];$i++) {
+      echo "\$cart[$i]:ID[" . $cart[$i]["product_id"];
+      echo "]->Qty:[" . $cart[$i]["quantity"] . "]<BR>";
+   }
+?></font></b></b></font></td>
+          <td width="18%"><font size="-2"></font></td>
+          <td width="36%"><font size="-2"></font></td>
+        </tr>
+        <tr>
+          <td colspan="4">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+              <tr valign="top">
+                <td width="46%">
+                  <div align="left"><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif" size="-2"><b><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif" size="-2"><b><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif" size="-2"><b><font color="#FFFFFF">
+<?php if ($HTTP_POST_VARS) { ?></font></b></font>HTTP_POST_VARS:<font color="#FFFFFF">
+                    </font></b></font></b></font> </div>
+                  <table width="80%" border="0" cellspacing="0" cellpadding="0" align="center">
+                    <tr>
+                      <td height="19"><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif" size="-2"><b><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif" size="-2"><b><font color="#FFFFFF"><?php
+#   while (list($val,$key) = each($HTTP_POST_VARS)) {
+#      echo "$val=>$key<BR>";
+#   }
+show_array($HTTP_POST_VARS);
+?>
+</font></b></font></b></font></td>
+                    </tr>
+                  </table>
+                  <div align="left"><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif" size="-2"><b><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif" size="-2"><b><font color="#FFFFFF"><?php }
+else { ?></font></b></font></b></font> <font color="#000099" face="Verdana, Arial, Helvetica, sans-serif" size="-2"><b><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif" size="-2"><b>HTTP_GET_VARS:</b></font></b></font>
+                  </div>
+                  <table width="80%" border="0" cellspacing="0" cellpadding="0" align="center">
+                    <tr>
+                      <td><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif" size="-2"><b><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif" size="-2"><b><font color="#FFFFFF">
+<?php
+#   while (list($val,$key) = each($HTTP_GET_VARS)) {
+#      echo "$val=>$key<BR>";
+#   }
+show_array($HTTP_GET_VARS);
+?>
+</font></b></font></b></font></td>
+                    </tr>
+                  </table>
+                  <font color="#000099" face="Verdana, Arial, Helvetica, sans-serif" size="-2"><b><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif" size="-2"><b><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif" size="-2"><b><font color="#FFFFFF"><?php } ?></font></b></font></b></font></b></font></td>
+                <td width="54%">
+                  <div align="left">
+                    <div align="left"><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif" size="-2"><b><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif" size="-2"><b><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif" size="-2"><b><font color="#FFFFFF"><?php if ($vars) { ?></font></b></font>$vars:<font color="#FFFFFF">
+                      </font></b></font></b></font> </div>
+                    <table width="80%" border="0" cellspacing="0" cellpadding="0" align="center">
+                      <tr>
+                        <td height="19"><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif" size="-2"><b><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif" size="-2"><b><font color="#FFFFFF">
+<?php
+#   while (list($val,$key) = each($vars)) {
+#      echo "$val=>$key<BR>";
+#   }
+show_array($vars);
+?>
+</font></b></font></b></font></td>
+                      </tr>
+                    </table>
+                    <div align="left"><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif" size="-2"><b><font color="#000099" face="Verdana, Arial, Helvetica, sans-serif" size="-2"><b><font color="#FFFFFF"><?php }
+?></font></b></font></b></font> </div>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>

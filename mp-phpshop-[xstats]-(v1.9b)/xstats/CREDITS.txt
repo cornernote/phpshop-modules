@@ -1,0 +1,56 @@
+===================
+CREDITS for X-Stats
+===================
+
+
+* Brett O'Donnell
+Initial developer of the consept and original code.
+http://www.brettodonnell.com
+
+
+* Bug Reporters
+Thanks to everyone who reports bugs.
+
+
+* Translators
+German - Steve Fiebig (eddv@gmx.net)
+Spanish - Akaid Diaz (akaid@computers4you.ca)
+
+
+* PHP-Shop
+A cool application development platform for php and mysql.
+http://www.phpshop.org
+
+
+* Stutter
+Live chat on your website using php and mysql.
+http://stutter.screwdriver.net
+
+
+* PHPlot
+The best and most flexable graphing class I could find for php.
+http://www.phplot.com
+
+
+* PHP
+Just a few words to the people who developed PHP: Thanks folks you're the
+best! PHP is easy to install, extremely easy to learn and use.
+http://www.php.net
+
+
+* MySQL
+One of the best database software I've ever seen. Flexible and powerfull.
+Thanks!!! for releasing it under GPL!!!
+http://www.mysql.com
+
+
+* Apache
+What can I say? The best Web server software.
+http://www.apache.org
+
+
+* Linux
+This software was made thanks to my love for Linux.
+Linux is a registered trademark of Linus Torvalds
+
+

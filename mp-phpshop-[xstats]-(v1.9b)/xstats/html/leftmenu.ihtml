@@ -1,0 +1,48 @@
+<?php
+// +----------------------------------------------------------------------+
+// | X-Stats                                                              |
+// | Copyright (c) 2001 BrettODonnell.com. All rights reserved.           |
+// +----------------------------------------------------------------------+
+// | The contents of this file are subject to the Mozilla Public License  |
+// | Version 1.1 (the "License"); you may not use this file except in     |
+// | compliance with the License. You may obtain a copy of the License at |
+// | http://www.mozilla.org/MPL/                                          |
+// |                                                                      |
+// | Software distributed under the License is distributed on an "AS IS"  |
+// | basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See  |
+// | the License for the specific language governing rights and           |
+// | limitations under the License.                                       |
+// |                                                                      |
+// | The Original Code is X-Stats.                                        |
+// |                                                                      |
+// | The Initial Developer of the Original Code is BrettODonnell.com.     |
+// | Portions created by BrettODonnell.com are Copyright (C) 2001         |
+// | BrettODonnell.com. All Rights Reserved.                              |
+// +----------------------------------------------------------------------+
+?>
+
+<!-- Start leftbar --> 
+<!-- Begin Navigation --> 
+<?php  print_box_top($xstats_lbl["stats_menu"]); ?>
+  <p><a href=<?php $sess->purl(URL . "?page=xstats/index");?>><font size=-1><b><?php echo $xstats_lbl["main"]; ?></b></font></a></p>
+  <p><a href=<?php $sess->purl(URL . "?page=xstats/visitors");?>><font size=-1><b><?php echo $xstats_lbl["recent"]; ?></b></font></a></p>
+  <p><a href=<?php $sess->purl(URL . "?page=xstats/top_products");?>><font size=-1><b><?php echo $xstats_lbl["top_products"]; ?></b></font></a></p>
+  <p><a href=<?php $sess->purl(URL . "?page=xstats/top_pages");?>><font size=-1><b><?php echo $xstats_lbl["top_pages"]; ?></b></font></a></p>
+  <p><a href=<?php $sess->purl(URL . "?page=xstats/top_entry");?>><font size=-1><b><?php echo $xstats_lbl["top_entry_pages"]; ?></b></font></a></p>
+  <p><a href=<?php $sess->purl(URL . "?page=xstats/top_exit");?>><font size=-1><b><?php echo $xstats_lbl["top_exit_pages"]; ?></b></font></a></p>
+  <p><a href=<?php $sess->purl(URL . "?page=xstats/top_refer");?>><font size=-1><b><?php echo $xstats_lbl["top_refer"]; ?></b></font></a></p>
+  <p><a href=<?php $sess->purl(URL . "?page=xstats/top_addr");?>><font size=-1><b><?php echo $xstats_lbl["top_addr"]; ?></b></font></a></p>
+  <p><a href=<?php $sess->purl(URL . "?page=xstats/browser");?>><font size=-1><b><?php echo $xstats_lbl["top_browser"]; ?></b></font></a></p>
+  <p><a href=<?php $sess->purl(URL . "?page=xstats/os");?>><font size=-1><b><?php echo $xstats_lbl["top_os"]; ?></b></font></a></p>
+<?php  print_box_bottom(); ?>
+
+<?php  print_box_top($xstats_lbl["graph_menu"]); ?>
+  <p><a href=<?php $sess->purl(URL . "?page=xstats/graph_day");?>><font size=-1><b><?php echo $xstats_lbl["graph_daily"]; ?></b></font></a></p>
+  <p><a href=<?php $sess->purl(URL . "?page=xstats/graph_week");?>><font size=-1><b><?php echo $xstats_lbl["graph_weekly"]; ?></b></font></a></p>
+  <p><a href=<?php $sess->purl(URL . "?page=xstats/graph_month");?>><font size=-1><b><?php echo $xstats_lbl["graph_monthly"]; ?></b></font></a></p>
+  <p><a href=<?php $sess->purl(URL . "?page=xstats/graph_year");?>><font size=-1><b><?php echo $xstats_lbl["graph_yearly"]; ?></b></font></a></p>
+<?php  print_box_bottom(); ?>
+<!-- End Navigation -->  
+
+
+<!-- End leftbar --> 

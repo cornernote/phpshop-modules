@@ -1,0 +1,14 @@
+-----------
+Version 1.1
+-----------
+
+- added page lost_password_reset.ihtml for better user navigation
+- changed reset function to removed old password and key
+- fixed link on step 4 of installation
+- fixed form submit page on lost_password.ihtml
+
+---------
+Version 1
+---------
+
+- released

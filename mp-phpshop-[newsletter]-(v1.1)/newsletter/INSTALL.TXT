@@ -1,0 +1,85 @@
+---------------------------
+Newsletter for phpShop v0.6
+---------------------------
+
+----
+Info
+----
+
+Module designed by Mr PHP
+W: www.mrphp.com.au
+E: info@mrphp.com.au
+P: +61 418 436 690
+
+
+-----------
+Description
+-----------
+
+Manage your own newsletter with this phpshop module.
+
+Very easy to install and use.
+
+
+--------------------
+Install Instructions
+--------------------
+
+1. download the file from http://www.brettodonnell.com/
+
+2. unzip files into phpshop/modules/
+
+3. run the newsletter.sql on your phpshop database: mysql -u username -p phpshop < stats.sql
+
+
+4. in the admin section of phpshop add a new module and functions:
+4.a	Module Name: newsletter
+	Module Perms: admin,storeadmin
+	Module Header: header.ihtml
+	Module Footer: footer.ihtml
+	Module Menu: yes
+	Display Order: 9
+	Module Description: Allows you to manage a newsletter
+	Language Code: English : Newsletter
+
+4.b	Function Name: newsletterEmailAdd
+	Class Name: newsletter_email
+	Class Method: add
+	Function Description:
+	Function Perms: none
+
+4.c	Function Name: newsletterEmailDelete
+	Class Name: newsletter_email
+	Class Method: delete
+	Function Description:
+	Function Perms: none
+
+4.d	Function Name: newsletterLetterAdd
+	Class Name: newsletter_letter
+	Class Method: add
+	Function Description:
+	Function Perms: admin,storeadmin
+
+4.e	Function Name: newsletterLetterUpdate
+	Class Name: newsletter_letter
+	Class Method: update
+	Function Description:
+	Function Perms: admin,storeadmin
+
+4.f	Function Name: newsletterLetterDelete
+	Class Name: newsletter_letter
+	Class Method: delete
+	Function Description:
+	Function Perms: admin,storeadmin
+
+4.g	Function Name: newsletterLetterSend
+	Class Name: newsletter_letter
+	Class Method: letter_send
+	Function Description:
+	Function Perms: admin,storeadmin
+
+
+5. Add this code to the bottom of phpshop/modules/shop/html/leftmenu.ihtml
+----------------------------------------------------------------
+<?php require(MODROOT."newsletter/html/newsletter_email_form.ihtml"); ?>
+----------------------------------------------------------------

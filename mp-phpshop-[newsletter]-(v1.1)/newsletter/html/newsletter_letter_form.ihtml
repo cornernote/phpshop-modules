@@ -1,0 +1,55 @@
+<h2>Newsletter Letter Form</H2>
+<?php 
+if ($letter_id) {
+  $q = "SELECT * FROM newsletter_letter WHERE letter_id='$letter_id'"; 
+  $db->query($q);  
+  $db->next_record();
+}  
+?><BR>
+<form method="post" action="<?php $sess->purl(SECUREURL) ?>" enctype="multipart/form-data">
+  <TABLE WIDTH="80%" BORDER="0" CELLSPACING="0" CELLPADDING="0" ALIGN="center">
+    <TR> 
+      <TD><B>Subject:</B> <input type=text name="letter_subject" value="<?php $db->sp("letter_subject") ?>"></TD>
+    </TR>
+    <TR> 
+      <TD><B>Letter Detail</B></TD>
+    </TR>
+    <TR> 
+      <TD> 
+        <TEXTAREA NAME="letter_detail" rows=20 cols=50><?php $db->sp("letter_detail") ?></TEXTAREA> 
+      </TD>
+    </TR>
+    <TR ALIGN="CENTER"> 
+      <TD> 
+        <INPUT TYPE="hidden" NAME="letter_id" VALUE="<?php echo $letter_id ?>">
+        <INPUT TYPE="hidden" NAME="func" VALUE="<?php if ($letter_id) echo "newsletterLetterUpdate"; else echo "newsletterLetterAdd"; ?>">
+        <INPUT TYPE="hidden" NAME="page" VALUE="newsletter/index">
+      </TD>
+    </TR>
+    <TR ALIGN="CENTER"> 
+      <TD><?php if ($letter_id) { ?> 
+        <TABLE WIDTH="50%" BORDER="0" CELLSPACING="0" CELLPADDING="0">
+          <TR ALIGN="center"> 
+            <TD WIDTH="50%"> 
+              <INPUT TYPE="image" BORDER="0" SRC="/ps_image/save.gif" WIDTH="50" HEIGHT="16" NAME="image">
+            </TD>
+            <TD WIDTH="50%"><A  onClick="return confirm('Are you sure you want to delete this record?')" HREF="<?php $sess->purl(SECUREURL . "?page=newsletter/index&func=newsletterLetterDelete&letter_id=$letter_id"); ?>"><IMG SRC="/ps_image/delete.gif"  WIDTH="50" HEIGHT="16" BORDER="0"></A> 
+            </TD>
+          </TR>
+        </TABLE>
+        <?php }
+else {
+ ?> 
+        <TABLE WIDTH="50%" BORDER="0" CELLSPACING="0" CELLPADDING="0">
+          <TR ALIGN="center"> 
+            <TD WIDTH="50%"> 
+              <INPUT TYPE="image" BORDER="0" SRC="/ps_image/save.gif" WIDTH="50" HEIGHT="16" NAME="image">
+            </TD>
+            <TD WIDTH="50%"><A HREF="<?php $sess->purl(SECUREURL . "?page=newsletter/newsletter_letter_form&letter_id") ?>"><IMG SRC="/ps_image/clear.gif" WIDTH="50" HEIGHT="16" BORDER="0"></A> 
+            </TD>
+          </TR>
+        </TABLE>
+        <?php } ?></TD>
+    </TR>
+  </TABLE>
+</form>

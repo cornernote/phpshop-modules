@@ -1,0 +1,91 @@
+<?php
+// +----------------------------------------------------------------------+
+// | X-Stats                                                              |
+// | Copyright (c) 2001 BrettODonnell.com. All rights reserved.           |
+// +----------------------------------------------------------------------+
+// | The contents of this file are subject to the Mozilla Public License  |
+// | Version 1.1 (the "License"); you may not use this file except in     |
+// | compliance with the License. You may obtain a copy of the License at |
+// | http://www.mozilla.org/MPL/                                          |
+// |                                                                      |
+// | Software distributed under the License is distributed on an "AS IS"  |
+// | basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See  |
+// | the License for the specific language governing rights and           |
+// | limitations under the License.                                       |
+// |                                                                      |
+// | The Original Code is X-Stats.                                        |
+// |                                                                      |
+// | The Initial Developer of the Original Code is BrettODonnell.com.     |
+// | Portions created by BrettODonnell.com are Copyright (C) 2001         |
+// | BrettODonnell.com. All Rights Reserved.                              |
+// +----------------------------------------------------------------------+
+
+
+function print_my_table($title,$query="")
+{
+  global $ps_xstats, $xstats_lbl;
+  $db=new ps_DB;
+  $total_hits=$ps_xstats->count("where 1=1 $query group by sid");
+
+  print_box_top($title);
+
+
+  $q="CREATE TEMPORARY TABLE tmp ( tmpsid     varchar(255),  tmptime    varchar(255))";
+  $db->query($q);
+
+  $q="LOCK TABLES session_stats read";
+  $db->query($q);
+
+  $q="INSERT INTO tmp SELECT sid, MAX(start_time) time FROM session_stats group by sid";
+  $db->query($q);
+
+  $q="SELECT *, count(uri) as hits FROM session_stats, tmp ";
+  $q.="WHERE session_stats.sid=tmp.tmpsid AND session_stats.start_time=tmp.tmptime ";
+  $q.=$query;
+  $q.="GROUP BY uri ORDER BY hits DESC ";
+  $q.="LIMIT 20";
+  $db->query($q);
+
+  echo "<table border=0 cellpadding=5 cellspacing=0>";
+  echo "<tr><th align=left>". $xstats_lbl["module_page"] ."</td><th>". $xstats_lbl["exits"] ."</td></tr>";
+
+  while($db->next_record())
+  {
+    $page=$db->f("page");
+    $hits=$db->f("hits");
+    $hits_percent=$ps_xstats->percent($hits,$total_hits);
+    print "<tr><td>$page</td><td align=center>$hits ($hits_percent%)</td></tr>";
+  }
+
+  echo "<tr><th align=left>". $xstats_lbl["totals"] ."</td><th>$total_hits</td></tr>";
+  echo "</table>";
+
+  $q="UNLOCK TABLES";
+  $db->query($q);
+
+  $q="DROP TABLE tmp";
+  $db->query($q);
+
+  print_box_bottom();
+}
+
+
+
+
+
+print_my_table($xstats_lbl["top_exit"]);
+
+$q="AND DAYOFYEAR(start_time)>(DAYOFYEAR(NOW())-31) ";
+$q.="AND YEAR(start_time)=YEAR(NOW()) ";
+print_my_table($xstats_lbl["last30days"],$q);
+
+$q="AND DAYOFYEAR(start_time)=DAYOFYEAR(NOW()) ";
+$q.="AND YEAR(start_time)=YEAR(NOW()) ";
+print_my_table($xstats_lbl["today"],$q);
+
+?>
+
+
+<p align=center>
+<a href=http://www.brettodonnell.com>This php-Shop Module was designed by Brett O'Donnell</a>
+</p>

@@ -1,0 +1,23 @@
+<B>Newsletter Menu</B>
+<BR><BR>
+<TABLE WIDTH="100%" BORDER="0" CELLSPACING="0" CELLPADDING="5" ALIGN="center" BGCOLOR="<?php echo $leftbar_title_bgcolor ?>">
+  <TR ALIGN="center"> 
+    <TD><A HREF="<?php $sess->purl(SECUREURL . "?page=$modulename/newsletter_letter_form"); ?>">
+	Add Newsletter</A></TD>
+  </TR>
+
+  <TR ALIGN="center"> 
+    <TD><A HREF="<?php $sess->purl(SECUREURL . "?page=$modulename/blank&print=1&func=newsletterLetterSend"); ?>">
+	Send Newsletter</A></TD>
+  </TR>
+
+  <TR ALIGN="center"> 
+    <TD><A HREF="<?php $sess->purl(SECUREURL . "?page=$modulename/newsletter_letter_list"); ?>">
+	List Newsletters</A></TD>
+  </TR>
+
+  <TR ALIGN="center"> 
+    <TD><A HREF="<?php $sess->purl(SECUREURL . "?page=$modulename/newsletter_email_list"); ?>">
+	Newsletter Email List</A></TD>
+  </TR>
+</TABLE>

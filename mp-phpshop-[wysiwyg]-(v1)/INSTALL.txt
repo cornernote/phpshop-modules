@@ -1,0 +1,132 @@
+---------------------------------------
+WYSIWYG Product Editor for phpShop v0.6
+---------------------------------------
+
+
+----
+Info
+----
+
+Module designed by Mr PHP
+W: www.mrphp.com.au
+E: info@mrphp.com.au
+P: +61 418 436 690
+
+
+-----------
+Description
+-----------
+
+This module allows you to edit the product_desc and product_s_desc using a WYSIWYG (what you see is what you get) editor.
+
+The WYSIWYG editor was obtained from here:
+http://www.unica.edu/uicfreesoft/
+
+
+--------------------------
+Quick Install Instructions
+--------------------------
+
+1. COPY the files in the modules directory into your modules directory
+
+NOTE: The following files will be overwritten:
+ /modules/product/html/product_form.ihtml
+ /modules/product/lib/ps_product.inc
+
+If you have edited these files already then please follow the Detailed Install Instructions.
+
+
+-----------------------------
+Detailed Install Instructions
+-----------------------------
+
+
+1. Copy the following files into your modules directory:
+/modules/product/lib/wysiwyg_web_edit.inc
+/modules/product/lib/PropAcce_string.inc
+
+
+2. Edit /modules/product/lib/ps_product.inc
+
+--[ FIND ]--
+  function update(&$d) {
+    global $ps_vendor_id;
+--[ BELOW, INSERT ]--
+    if ($d["product_s_desc_contingut_html"]) {
+      $d["product_s_desc"] = $d["product_s_desc_contingut_html"];
+    }
+    if ($d["product_desc_contingut_html"]) {
+      $d["product_desc"] = $d["product_desc_contingut_html"];
+    }
+--[ FIND ]--
+  function add(&$d) {
+    global $ps_vendor_id;
+--[ BELOW, INSERT ]--
+    if ($d["product_s_desc_contingut_html"]) {
+      $d["product_s_desc"] = $d["product_s_desc_contingut_html"];
+    }
+    if ($d["product_desc_contingut_html"]) {
+      $d["product_desc"] = $d["product_desc_contingut_html"];
+    }
+--[ END ]--
+
+
+3. Edit /modules/product/html/product_form.ihtml
+
+--[ FIND ]--
+        <form method="post" action="<?php $sess->purl(SECUREURL) ?>" enctype="multipart/form-data">
+--[ REPLACE WITH ]--
+        <script>
+        function guardaho(codi){
+        <?
+	$mesg1['cat'] = "Aquesta és la funció que has d'adaptar a les teves necessitats.";
+	$mesg1['esp'] = "Esta es la función que tienes que adaptar a tus necesidades.";
+	$mesg1['eng'] = "This is the function you have to adapt to your needs.";
+	echo "\n alert(\"".$mesg1['eng']."\");";
+	$mesg1['cat'] = "El codi generat és:\\n\\n";
+	$mesg1['esp'] = "El código generado es:\\n\\n";
+	$mesg1['eng'] = "The generated code is:\\n\\n";
+	echo "\n alert(\"".$mesg1['eng']."\"+codi);";
+        ?>
+        }
+        </script>
+        <form method="post" action="<?php $sess->purl(SECUREURL) ?>" name="myform_doc_html" enctype="multipart/form-data">
+--[ FIND ]--
+        <textarea name="product_s_desc" cols="50" rows="6" wrap="VIRTUAL">
+        <?php $db->sp("product_s_desc"); ?>
+        </textarea>
+--[ REPLACE WITH ]--
+        <?php
+        // Paràmetres del wysiwyg_web_edit:
+        $nom_editor = "product_s_desc";
+        $idi_edit = 'eng';
+        $editor_height = 100;
+        $editor_width= 500;
+        //$funcio_save= 'guardaho(codi);';
+        $action_submit = "index.php";
+        $document_complet = 0;
+        $content_inicial = $db->sf("product_s_desc");
+        include WEBROOT."modules/product/lib/wysiwyg_web_edit.inc";
+        ?>
+--[ FIND ]--
+        <textarea name="product_desc" cols="50" rows="10" wrap="VIRTUAL">
+        <?php $db->sp("product_desc"); ?>
+        </textarea>
+--[ REPLACE WITH ]--
+        <?php
+        // Paràmetres del wysiwyg_web_edit:
+        $nom_editor = "product_desc";
+        $idi_edit = 'eng';
+        $editor_height = 300;
+        $editor_width= 500;
+        //$funcio_save= 'guardaho(codi);';
+        $action_submit = "index.php";
+        $document_complet = 0;
+        $content_inicial = $db->sf("product_desc");
+        include WEBROOT."modules/product/lib/wysiwyg_web_edit.inc";
+        ?>
+--[ FIND TWO OCCURANCES ]--
+        <input type="image" border="0" src="/ps_image/save.gif" width="50" height="16" name="image">
+--[ REPLACE BOTH WITH ]--
+        <input type="image" onclick="product_s_desc_guardar();product_desc_guardar();" border="0" src="/ps_image/save.gif" width="50" height="16" name="image">
+--[ END ]--

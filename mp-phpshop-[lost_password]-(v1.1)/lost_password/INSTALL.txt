@@ -1,0 +1,204 @@
+------------------------------
+Lost Password for phpShop v0.6
+------------------------------
+
+----
+Info
+----
+
+Module designed by Mr PHP
+W: www.mrphp.com.au
+E: info@mrphp.com.au
+P: +61 418 436 690
+
+
+-----------
+Description
+-----------
+
+This module will allow users who have lost their password to have a new one emailed to them.  
+
+It works as follows:
+
+1. user enters username or email address
+2. if found, a new 8 letter non-active password is generated and emailed
+3. user clicks a link in the email and new password is activated
+
+
+
+--------------------
+Install Instructions
+--------------------
+
+1. Edit database:
+
+from the command line
+mysql -uDBUSER -hDBHOST -p DBNAME < lost_password.sql
+
+or you can use phpmyadmin - www.phpmyadmin.net
+
+
+2. upload lost_password.ihtml and lost_password_reset.ihtml to .../modules/shop/html
+  
+
+3.a. If you have not changed ps_user.inc:
+upload ps_user.inc to .../modules/admin/lib
+
+3.b. If you have changed ps_user.inc:
+
+--[ OPEN ]--
+.../modules/admin/lib/ps_user.inc
+--[ FIND ]--
+at the very bottom
+}
+
+?>
+--[ ABOVE, INSERT ]--
+/**************************************************************************
+  ** name: send_lost_password()
+  ** created by: pablo <pablo@phpshop.org>
+  ** converted to phpshop 0.6 by: Mr PHP www.mrphp.com.au
+  ** description:
+  ** parameters:
+  ** returns:
+  ***************************************************************************/
+  function send_lost_password(&$d) {
+    global $ps_vendor_id, $sess;
+
+    $db = new ps_DB;
+
+    if($d["username"]){
+      $q  = "SELECT * FROM auth_user_md5, user_info ";
+      $q .= "WHERE auth_user_md5.username='".$d["username"]."' ";
+      $q .= "AND auth_user_md5.user_id=user_info.user_id ";
+      $q .= "AND user_info.address_type='BT' ";
+      $db->query($q);
+      if(!$db->next_record()){
+        $d["error"] .= "The username you entered was not found in our database.";
+        return False;
+      }
+    }
+    elseif($d["user_email"]){
+      $q  = "SELECT * FROM auth_user_md5, user_info ";
+      $q .= "WHERE user_info.user_email='".$d["user_email"]."' ";
+      $q .= "AND auth_user_md5.user_id=user_info.user_id ";
+      $q .= "AND user_info.address_type='BT' ";
+      $db->query($q);
+      if(!$db->next_record()){
+        $d["error"] .= "The email address you entered was not found in our database.";
+        return False;
+      }
+    }
+    else{
+      $d["error"] .= "Please enter a username or email address.";
+      return False;
+    }
+
+    $user_id = $db->f("user_id");
+    $user_email=$db->f("user_email");
+    $password = $this->make_password();
+    $reset_password = md5($password);
+    $key = md5(md5(md5($password)));
+
+    //get vendor info
+    $dbv = new ps_DB;
+    $qt = "SELECT * from vendor WHERE vendor_id = $ps_vendor_id";
+    $dbv->query($qt);
+    $dbv->next_record();
+    $vendor_email = $dbv->f("contact_email");
+    $vendor_name = $dbv->f("vendor_name");
+
+    // Save the key and password in the db for later
+    $q = "UPDATE auth_user_md5 SET reset_key='$key', reset_password='$reset_password' WHERE user_id='$user_id'";
+    $db->query($q);
+
+    $mail_text = "You are receiving this email because you (or someone pretending to be you) has requested a password change on the $vendor_name site. If you believe you have received this message in error simply delete it and your password will remain the same.\n\n";
+    $mail_text .= "--> Your new password as generated is: $password\n\n";
+    $mail_text .= "In order for this change to take effect you must visit this page:\n\n";
+    $mail_text .= "   ".$sess->url(URL."?page=shop/lost_password_reset&func=resetLostPassword&key=$key")."\n\n";
+    $mail_text .= "Once you have visited the page your password will be changed in our database, and you may login to the profile section and change it as desired.\n\n";
+    $mail_text .= "Thank you for using our site.\n\n";
+    $mail_text .= "Yours Truely,\n\n";
+    $mail_text .= "The Site Admin\n\n";
+
+
+    mail($user_email,"Password Change Request",$mail_text,"From: $vendor_email\n");
+    $d["error"] .= "An email has been sent to you to you with the new password.";
+    return True;
+  }
+
+  /**************************************************************************
+  ** name: reset_lost_password()
+  ** created by: pablo <pablo@phpshop.org>
+  ** converted to phpshop 0.6 by: Mr PHP www.mrphp.com.au
+  ** description:
+  ** parameters:
+  ** returns:
+  ***************************************************************************/
+  function reset_lost_password(&$d) {
+    $db = new ps_DB;
+
+    $q = "SELECT user_id FROM auth_user_md5 WHERE reset_key='".$d["key"]."'";
+    $db->query($q);
+    if (!$db->next_record()) {
+      $d["error"] .= "The password reset key you are using is invalid.";
+      return False;
+    }
+    // Key found so reset password
+    $q = "UPDATE auth_user_md5 SET password=reset_password, reset_password='', reset_key='' WHERE reset_key='".$d["key"]."'";
+    $db->query($q);
+    $d["error"] .= "Password change successfull.";
+    return True;
+  }
+
+
+  /**************************************************************************
+  ** name: make_password()
+  ** created by: pablo <pablo@phpshop.org>
+  ** description: Creates an 8 letter random password.
+  ***************************************************************************/
+  function make_password() {
+    $makepass="";
+    $chars = array(
+                   "a","A","b","B","c","C","d","D","e","E",
+                   "f","F","g","G","h","H","i","I","j","J",
+                   "k","K","l","L","m","M","n","N","o","O",
+                   "p","P","q","Q","r","R","s","S","t","T",
+                   "u","U","v","V","w","W","x","X","y","Y",
+                   "z","Z","1","2","3","4","5","6","7","8",
+                   "9","0"
+                   );
+    $max_elements = count($chars) - 1;
+    srand((double)microtime()*1000000);
+    $newpw = $chars[rand(0,$max_elements)];
+    $newpw .= $chars[rand(0,$max_elements)];
+    $newpw .= $chars[rand(0,$max_elements)];
+    $newpw .= $chars[rand(0,$max_elements)];
+    $newpw .= $chars[rand(0,$max_elements)];
+    $newpw .= $chars[rand(0,$max_elements)];
+    $newpw .= $chars[rand(0,$max_elements)];
+    $newpw .= $chars[rand(0,$max_elements)];
+    $makepass = $newpw;
+    return($makepass);
+  }
+--[ END ]--
+
+
+4. Edit .../modules/shop/html/login.ihtml - add this link:
+  <a href="<?php $sess->purl(URL."?page=shop/lost_password"); ?>">click here if you have lost your password</a>
+
+
+5. Add functions to module "admin":
+
+5.a.  Function Name: sendLostPassword
+      Class Name: ps_user
+      Class Method: send_lost_password
+      Function Perms: none
+      Function Description: Generates a new password and sends an email to the user for confirmation of the changes. 
+
+5.b.  Function Name: resetLostPassword
+      Class Name: ps_user
+      Class Method: reset_lost_password
+      Function Perms: none
+      Function Description: Resets a new password once a user responds to the confirmation. 
+

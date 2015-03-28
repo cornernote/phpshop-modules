@@ -1,0 +1,112 @@
+<?php
+// ----------------------------------------------------------------------
+// Search Engine Friendly Links for phpShop
+// ----------------------------------------------------------------------
+// Module designed by Mr PHP
+// W: www.mrphp.com.au
+// E: info@mrphp.com.au
+// P: +61 418 436 690
+// ----------------------------------------------------------------------
+// LICENSE
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License (GPL)
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// To read the license please visit http://www.gnu.org/copyleft/gpl.html
+// ----------------------------------------------------------------------
+
+  $page_title_length=100;
+  $meta_desc_length=1000;
+  $meta_key_length=1000;
+  $remove_array=array(" and " => " ",
+                      " a " => " ",
+                      " to " => " ",
+                      " for " => " ",
+                      " the " => " ",
+                      " it " => " ",
+                      " by " => " ",
+                      "\"" => " ",
+                      "'" => " ",
+                      "\n" => " ",
+                      "\r" => " ",
+                      "\t" => " ",
+                      "\v" => " ",
+                      "\0" => " ");
+
+  //Form META Tags
+  if($product_id){
+    $db=new ps_DB;
+    $q =  "SELECT product_name, product_desc, category_name, category_description ";
+    $q .= "FROM product, category, product_category_xref ";
+    $q .= "WHERE product.product_id='$product_id' ";
+    $q .= "AND product.product_id=product_category_xref.product_id ";
+    $q .= "AND product_category_xref.category_id=category.category_id ";
+    $db->query($q);
+    $db->next_record();
+
+    $product_desc = $db->f("product_desc");
+    // remove HTML tags
+    $product_desc = strip_tags($product_desc);
+    // remove unwanted words and characters
+    $product_desc = strtr($product_desc, $remove_array);
+    // remove double spaces
+    while (eregi("  ", $product_desc)) {
+      $product_desc = ereg_replace("  "," ",$product_desc);
+    }
+
+
+    $category_desc = $db->f("category_description");
+    $category_desc = strip_tags($category_desc);
+    $category_desc = strtr($category_desc, $remove_array);
+    while (eregi("  ", $category_desc)) {
+      $category_desc = ereg_replace("  "," ",$category_desc);
+    }
+
+    $page_title = substr($db->f("product_name") ." - ". $vendor_name ." - ". $product_desc,0,$page_title_length);
+    $meta_desc = substr($db->f("product_name") ." (". $db->f("category_name") .") ". $product_desc,0,$meta_desc_length);
+    $meta_key = explode(" ", substr($vendor_name ." ". $db->f("product_name") ." ". $db->f("category_name") ." ". $product_desc ." ". $category_desc,0,$meta_key_length));
+    $meta_key = implode(", ", array_unique($meta_key));
+  }
+  elseif($category_id){
+    $db=new ps_DB;
+    $db->query("SELECT category_name, category_description FROM category WHERE category_id='$category_id'");
+    $db->next_record();
+
+    $category_desc = $db->f("category_description");
+    $category_desc = strip_tags($category_desc);
+    $category_desc = strtr($category_desc, $remove_array);
+    while (eregi("  ", $category_desc)) {
+      $category_desc = ereg_replace("  "," ",$category_desc);
+    }
+
+    $page_title = substr($db->f("category_name") ." - ". $vendor_name ." - ". $category_desc,0,$page_title_length);
+    $meta_desc = substr($db->f("category_name") ." - ". $category_desc,0,$meta_desc_length);
+    $meta_key = explode(" ", substr($vendor_name ." ". $db->f("category_name") ." ". $category_desc,0,$meta_key_length));
+    $meta_key = implode(", ", array_unique($meta_key));
+  }
+  else{
+    $db=new ps_DB;
+    $db->query("SELECT vendor_name, vendor_store_desc FROM vendor WHERE vendor_id=1");
+    $db->next_record();
+
+    $vendor_store_meta = $db->f("vendor_store_desc");
+    $vendor_store_meta = strip_tags($vendor_store_meta);
+    $vendor_store_meta = strtr($vendor_store_meta, $remove_array);
+    while (eregi("  ", $vendor_store_meta)) {
+      $vendor_store_meta = ereg_replace("  "," ",$vendor_store_meta);
+    }
+
+    $page_title = substr($vendor_name ." - ". $vendor_store_meta,0,$page_title_length);
+    $meta_desc = substr($vendor_store_meta,0,$meta_desc_length);
+    $meta_key = explode(" ", substr($vendor_name ." ". $vendor_store_meta,0,$meta_key_length));
+    $meta_key = implode(", ", array_unique($meta_key));
+  }
+
+?>

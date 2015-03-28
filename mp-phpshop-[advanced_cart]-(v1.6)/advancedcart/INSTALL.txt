@@ -1,0 +1,128 @@
+------------------------------
+Advanced Cart for phpShop v0.6
+------------------------------
+
+----
+Info
+----
+
+Module designed by Mr PHP
+W: www.mrphp.com.au
+E: info@mrphp.com.au
+P: +61 418 436 690
+
+
+-----------
+Description
+-----------
+
+Allows your shoppers to update all the quantities of their shopping basket with one click.
+
+You can also add multiple products to the cart in 1 click.
+
+
+--------------------
+Install Instructions
+--------------------
+
+1. COPY ps_cart.inc INTO /phpshop/modules/shop/lib/
+
+
+2. COPY basket.ihtml INTO /phpshop/modules/templates/
+(If you have already modified this page then just follow these steps:)
+
+2.a Add this code above the table (basket.ihtml)
+-----------------------------------------------
+<FORM ACTION="<?php echo URL ?>" METHOD=POST>
+  <?php $sess->hidden_session() ?>
+  <INPUT TYPE=HIDDEN NAME=page VALUE=<?php echo $page ?>>
+  <INPUT TYPE=HIDDEN NAME=func VALUE="cartUpdate">
+  <INPUT TYPE=HIDDEN NAME=ship_to_info_id VALUE=<?php echo $ship_to_info_id?> >
+-----------------------------------------------
+
+2.b Add this code below the table (basket.ihtml)
+-----------------------------------------------
+<p><input type="submit" name="Update" VALUE="Update">
+</FORM>
+-----------------------------------------------
+
+2.c Delete the code below (basket.ihtml)
+-----------------------------------------------
+<FORM ACTION="<?php echo URL ?>" METHOD=POST>
+<?php $sess->hidden_session() ?>
+<INPUT TYPE=HIDDEN NAME=ship_to_info_id VALUE=<?php echo $ship_to_info_id?> >
+-----------------------------------------------
+<TD>
+  <INPUT TYPE=HIDDEN NAME=page VALUE=<?php echo $page ?>>
+  <INPUT TYPE=HIDDEN NAME=func VALUE="cartUpdate">
+  <INPUT TYPE=HIDDEN NAME=product_id VALUE=<?php echo $cart[$i]["product_id"]?>>
+  <INPUT TYPE=Submit NAME=Update VALUE="Update">
+</FORM>
+</TD>
+-----------------------------------------------
+
+
+2.d Change this code (basket.ihtml)
+FROM
+-----------------------------------------------
+<td>
+  <FORM ACTION="<?php echo URL ?>" METHOD=POST NAME=Delete>
+  <?php $sess->hidden_session() ?>
+  <INPUT TYPE=HIDDEN NAME=page VALUE=<?php echo $page?>>
+  <INPUT TYPE=HIDDEN NAME=func VALUE="cartDelete">
+  <INPUT TYPE=HIDDEN NAME=product_id VALUE=<?php echo $cart[$i]["product_id"]?>>
+  <INPUT TYPE=Submit NAME=Delete VALUE="Delete">
+</FORM>
+</TD>
+-----------------------------------------------
+TO
+-----------------------------------------------
+<TD colspan=2>
+  <a href="<?php $sess->purl(URL."?page=$page&func=cartDelete&product_id=".$cart[$i]["product_id"]); ?>">Delete</a>
+</TD>
+-----------------------------------------------
+
+
+2.d Change this code in (basket.ihtml)
+FROM
+-----------------------------------------------
+<INPUT TYPE=TEXT SIZE=4 MAXLENGTH=4 NAME=quantity VALUE=<?php echo $cart[$i]["quantity"];?>>
+-----------------------------------------------
+TO
+-----------------------------------------------
+<INPUT TYPE=TEXT SIZE=4 MAXLENGTH=4 NAME=quantity[<?php echo $i; ?>] VALUE=<?php echo $cart[$i]["quantity"];?>>
+-----------------------------------------------
+
+
+3.a Add this code to any page add multiple products
+-----------------------------------------------
+X = Incremental (starting from 0)
+Y = The product_id to be added
+Z = The quantity to be added
+-----------------------------------------------
+      <form action="<?php echo URL ?>" method=POST>
+        <?php $sess->hidden_session() ?>
+        <input type=HIDDEN name=page value="shop/cart">
+        <input type=HIDDEN name=func value="cartAdd">
+        <input type=HIDDEN name=products[X][product_id] value="Y">
+        <input type=HIDDEN name=products[X][quantity] value="Z">
+        <input type=Submit name=Add value="Add Items">
+      </form>
+-----------------------------------------------
+
+
+3.b Example
+-----------------------------------------------
+      <form action="<?php echo URL ?>" method=POST>
+        <?php $sess->hidden_session() ?>
+        <input type=HIDDEN name=page value="shop/cart">
+        <input type=HIDDEN name=func value="cartAdd">
+        <input type=HIDDEN name=products[0][product_id] value="1">
+        <input type=HIDDEN name=products[0][quantity] value="2">
+        <input type=HIDDEN name=products[1][product_id] value="5">
+        <input type=HIDDEN name=products[1][quantity] value="55">
+        <input type=HIDDEN name=products[2][product_id] value="7">
+        <input type=HIDDEN name=products[2][quantity] value="17">
+        <input type=Submit name=Add value="Add Items">
+      </form>
+-----------------------------------------------

@@ -1,0 +1,87 @@
+<?php
+// +----------------------------------------------------------------------+
+// | X-Stats                                                              |
+// | Copyright (c) 2001 BrettODonnell.com. All rights reserved.           |
+// +----------------------------------------------------------------------+
+// | The contents of this file are subject to the Mozilla Public License  |
+// | Version 1.1 (the "License"); you may not use this file except in     |
+// | compliance with the License. You may obtain a copy of the License at |
+// | http://www.mozilla.org/MPL/                                          |
+// |                                                                      |
+// | Software distributed under the License is distributed on an "AS IS"  |
+// | basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See  |
+// | the License for the specific language governing rights and           |
+// | limitations under the License.                                       |
+// |                                                                      |
+// | The Original Code is X-Stats.                                        |
+// |                                                                      |
+// | The Initial Developer of the Original Code is BrettODonnell.com.     |
+// | Portions created by BrettODonnell.com are Copyright (C) 2001         |
+// | BrettODonnell.com. All Rights Reserved.                              |
+// +----------------------------------------------------------------------+
+
+
+function print_my_table($title,$query="")
+{
+  global $ps_xstats, $xstats_lbl, $sess;
+  $db=new ps_DB;
+  $db1=new ps_DB;
+  $total_pages=$ps_xstats->count($query);
+  $total_hits=$ps_xstats->count("$query group by sid");
+
+  print_box_top($title);
+
+
+  $q="select *, count(addr) as num from session_stats ";
+  $q.=$query;
+  $q.="group by addr order by num desc limit 20";
+  $db->query($q);
+
+  echo "<table border=0 cellpadding=5 cellspacing=0>";
+  echo "<tr><th>". $xstats_lbl["addr"] ."</th><th>". $xstats_lbl["pages"] ."</th><th>". $xstats_lbl["hits"] ."</th><th>". $xstats_lbl["show"] ."</th></tr>";
+
+  while($db->next_record())
+  {
+    $addr=$db->f("addr");
+    $addr_pages=$db->f("num");
+    $db1->query("select * from session_stats where addr='$addr' group by sid");
+    $addr_hits=$db1->num_rows();
+
+    $hits_percent=$ps_xstats->percent($addr_hits,$total_hits);
+    $pages_percent=$ps_xstats->percent($addr_pages,$total_pages);
+
+    print "<tr><td>$addr</td><td align=center>$addr_pages ($pages_percent%)</td><td align=center>$addr_hits ($hits_percent%)</td><td>";
+    print "<form method=POST>";
+    $sess->hidden_session();
+    print "<input type=HIDDEN name=page value=xstats/visitors>";
+    print "<input type=HIDDEN name=title value='$title - Visitors With IP: $addr'>";
+    print "<input type=HIDDEN name=where value=\"WHERE addr='$addr' $query\">";
+    print "<input type=SUBMIT name=submit value='Show Visitors'>";
+    print "</td></form></tr>";
+  }
+
+  echo "<tr><th align=left>". $xstats_lbl["totals"] ."</th><th>$total_pages</td><th>$total_hits</td><th>&nbsp;</td></tr>";
+  echo "</table>";
+
+  print_box_bottom();
+}
+
+
+
+
+print_my_table($xstats_lbl["top_addr"]);
+
+$q="WHERE DAYOFYEAR(start_time)>(DAYOFYEAR(NOW())-31) ";
+$q.="AND YEAR(start_time)=YEAR(NOW()) ";
+print_my_table($xstats_lbl["last30days"],$q);
+
+$q="WHERE DAYOFYEAR(start_time)=DAYOFYEAR(NOW()) ";
+$q.="AND YEAR(start_time)=YEAR(NOW()) ";
+print_my_table($xstats_lbl["today"],$q);
+
+?>
+
+
+<p align=center>
+<a href=http://www.brettodonnell.com>This php-Shop Module was designed by Brett O'Donnell</a>
+</p>

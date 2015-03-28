@@ -1,0 +1,349 @@
+--------------------------------
+Next/Prev Links for phpShop v0.6
+--------------------------------
+
+
+----
+Info
+----
+
+Module designed by Mr PHP
+W: www.mrphp.com.au
+E: info@mrphp.com.au
+P: +61 418 436 690
+
+
+-----------
+Description
+-----------
+
+This will change the links on your browse page and every admin list page from this:
+
+PREV 1 2 3 4 5 6 7 8 9 10 (continues as many pages as you have) 998 999 1000 NEXT
+
+To this:
+
+Page 279 of 1000
+Records 5580 to 5600 of 20000
+PREV 276 277 278 279 280 281 282 NEXT
+FIRST | Prev 6 | Next 6 | LAST
+
+
+--------------------
+Install Instructions
+--------------------
+
+Follow these 3 steps:
+
+
+STEP 1
+--<open>--
+phpshop.cfg
+--<find>--
+"SEARCH_ROWS"                =>        "20",
+--<below insert>--
+"SEARCH_PAGES"          =>        "6", //should be an even number
+--<end>--
+
+
+STEP 2
+--<open>--
+browse.ihtml
+--<find>--
+<!-- Build previous/next navigation links -->
+<?php
+   // Check to see if we need to have previous button
+   if ($offset >= SEARCH_ROWS) {
+     $prevoffset=$offset-SEARCH_ROWS;
+     echo "<A HREF=";
+     $sess->purl(URL . "?page=$modulename/browse&category_id=$category_id&keyword=$keyword&offset=$prevoffset");
+     echo ">PREV</A>&nbsp;";
+   }
+
+   // Get total pages
+   $num_pages = intval($num_rows / SEARCH_ROWS);
+   if ($num_rows % SEARCH_ROWS) {
+      $num_pages++;
+   }
+   if ($num_pages != 1)
+     for ($i=1;$i<=$num_pages;$i++) {
+        if (($offset < $i*SEARCH_ROWS) && ($offset >= ($i-1)*SEARCH_ROWS)) {
+           $pagenumber = "<FONT SIZE=+2>$i</FONT>";
+        }
+        else
+           $pagenumber = $i;
+
+        $newoffset = SEARCH_ROWS * ($i-1);
+        echo "<A HREF=";
+        $sess->purl(URL . "?page=$modulename/browse&offset=$newoffset&category_id=$category_id&keyword=$keyword");
+        echo ">$pagenumber</A>&nbsp;";
+     }
+
+   if (($offset+SEARCH_ROWS < $num_rows) && $num_pages != 1) {
+      $newoffset = $offset + SEARCH_ROWS;
+      echo "<A HREF=";
+      $sess->purl(URL . "?page=$modulename/browse&offset=$newoffset&category_id=$category_id&keyword=$keyword");
+      echo ">NEXT</A>\n";
+   }
+
+?>
+--<replace with>--
+<!-- Build previous/next navigation links -->
+<center>
+<?php
+// Set up for multi page navigation
+
+// Get total pages
+$num_pages = intval($num_rows / SEARCH_ROWS);
+if ($num_rows % SEARCH_ROWS)
+  $num_pages++;
+$page_num=($offset/SEARCH_ROWS)+1;
+
+$from = $offset + 1;
+$to = $offset + SEARCH_ROWS;
+if ($to > $num_rows)
+$to = $num_rows;
+
+$search_string="";
+if ($keyword) {
+$search_string.="&keyword=" .urlencode($keyword) ."";
+}
+?>
+
+<?
+//print the page number
+if ($num_pages == 1)
+  echo "Page <B>1</B> of <B>1</B><br>";
+else
+  echo "Page <B>". $page_num ."</B> of <B>" .$num_pages. "</B><br>";
+?>
+
+<BR>
+
+<?php
+//print the current products
+if ($num_rows == 1)
+  echo "Product <B>1</B> of <B>1</B>";
+elseif ($from == $to)
+  echo "Product <B>". $from ."</B> of <B>" .$num_rows. "</B>";
+else
+  echo "Products <B>". $from ."</B> to <B>" .$to. "</B> of <B>" .$num_rows. "</B>";
+?>
+
+<BR>
+
+<?php
+//print the previous page link
+if ($offset >= SEARCH_ROWS) {
+  $prevoffset=$offset-SEARCH_ROWS;
+  echo "<A HREF=";
+  $sess->purl(URL . "?page=$modulename/browse&category_id=$category_id&category=$category&keyword=" .urlencode($keyword). "&offset=$prevoffset");
+  echo " CLASS=\"linkMenu\">&lt; PREV</A>&nbsp;";
+}
+?>
+
+<?php
+//print links to the pages in range
+if ($num_pages != 1) {
+
+  $start_page=$page_num-intval(SEARCH_PAGES/2);
+  if($start_page<=0) $start_page=1;
+
+  $end_page=$page_num+intval(SEARCH_PAGES/2);
+  if($end_page>$num_pages) { $end_page=$num_pages; }
+
+  for ($i=$start_page;$i<=$end_page;$i++) {
+    if (($offset < $i*SEARCH_ROWS) && ($offset >= ($i-1)*SEARCH_ROWS)) {
+      echo "<B>" . $i . "</B>&nbsp;";
+    }
+    else {
+      $pagenumber = $i;
+      $newoffset = SEARCH_ROWS * ($i-1);
+      echo "<A HREF=";
+      $sess->purl(URL . "?page=$modulename/browse&offset=$newoffset&category_id=$category_id&category=$category&keyword=" .urlencode($keyword) ."");
+      echo " CLASS=\"linkMenu\">$pagenumber</A>&nbsp;";
+    }
+  }
+}
+?>
+
+<?php
+//print the next page link
+if (($offset+SEARCH_ROWS < $num_rows) && $num_pages != 1) {
+  $newoffset = $offset + SEARCH_ROWS;
+  echo "<A HREF=";
+  $sess->purl(URL . "?page=$modulename/browse&offset=$newoffset&category_id=$category_id&category=$category&keyword=" .urlencode($keyword) ."");
+  echo " CLASS=\"linkMenu\">NEXT &gt;</A>\n";
+}
+?>
+
+<br>
+
+<?php
+// print the first page button
+if ($offset!=0) {
+  $newoffset=0;
+  echo "<A HREF=". $sess->url(URL . "?page=$modulename/browse&category_id=" ."$category_id&category=$category&keyword=" .urlencode($keyword) ."&offset=$newoffset");
+  echo " CLASS=\"linkMenu\">&lt; &lt; &lt; FIRST PAGE</A>&nbsp;";
+}
+?>
+
+<?php
+// print the previous X pages button
+if ($offset-(SEARCH_ROWS*SEARCH_PAGES) >= 0) {
+  $prevoffset=$offset-(SEARCH_ROWS*SEARCH_PAGES);
+  echo "<A HREF=". $sess->url(URL . "?page=$modulename/browse&category_id=" ."$category_id&category=$category&keyword=" .urlencode($keyword) ."&offset=$prevoffset");
+  echo " CLASS=\"linkMenu\">&lt;&lt; PREV ".SEARCH_PAGES." PAGES</A>&nbsp;";
+}
+?>
+
+<?php
+// print the next X pages button
+if ($offset+(SEARCH_ROWS*SEARCH_PAGES) < $num_rows) {
+  $newoffset=$offset+(SEARCH_ROWS*SEARCH_PAGES);
+  echo "<A HREF=". $sess->url(URL . "?page=$modulename/browse&category_id=" ."$category_id&category=$category&keyword=" .urlencode($keyword) ."&offset=$newoffset");
+  echo " CLASS=\"linkMenu\">NEXT ".SEARCH_PAGES." PAGES &gt;&gt;</A>&nbsp;";
+}
+?>
+
+<?php
+// print the last page button
+if ($offset+SEARCH_ROWS<$num_rows) {
+  $newoffset=$num_rows;
+  echo "<A HREF=". $sess->url(URL . "?page=$modulename/browse&category_id=" ."$category_id&category=$category&keyword=" .urlencode($keyword) ."&offset=$newoffset");
+  echo " CLASS=\"linkMenu\">LAST PAGE &gt; &gt; &gt;</A>&nbsp;";
+}
+?>
+
+
+</center>
+<!-- End previous/next navigation links -->
+--<end>--
+
+
+STEP 3
+--<open>--
+ps_main.inc
+--<find>--
+function search_footer(){
+  ....
+}
+--<replace>--
+function search_footer($modulename, $pagename, $offset, $num_rows, $keyword, $extra="") {
+  global $sess;
+
+  $footer = "<BR>\n";
+  $footer .= "<CENTER>";
+
+  // Get total pages
+  $num_pages = intval($num_rows / SEARCH_ROWS);
+  if ($num_rows % SEARCH_ROWS)
+    $num_pages++;
+  $page_num=($offset/SEARCH_ROWS)+1;
+
+  $from = $offset + 1;
+  $to = $offset + SEARCH_ROWS;
+  if ($to > $num_rows)
+  $to = $num_rows;
+
+  $search_string="";
+  if ($keyword) {
+    $search_string.="&keyword=" .urlencode($keyword) ."";
+  }
+
+  //print the page number
+  if ($num_pages == 1)
+    $footer .= "Page <B>1</B> of <B>1</B><br>";
+  else
+    $footer .= "Page <B>". $page_num ."</B> of <B>" .$num_pages. "</B><br>";
+
+  $footer .= "<br>";
+
+  //print the current record
+  if ($num_rows == 1)
+    $footer .= "Record <B>1</B> of <B>1</B>";
+  elseif ($from == $to)
+    $footer .= "Record <B>". $from ."</B> of <B>" .$num_rows. "</B>";
+  else
+    $footer .= "Record <B>". $from ."</B> to <B>" .$to. "</B> of <B>" .$num_rows. "</B>";
+
+  $footer .= "<br>";
+
+  //print the previous page link
+  if ($offset >= SEARCH_ROWS) {
+    $prevoffset=$offset-SEARCH_ROWS;
+    $footer .= "<A HREF=";
+    $footer .= $sess->url(SECUREURL . "?page=$modulename/$pagename&keyword=$keyword&offset=$prevoffset$extra");
+    $footer .= ">PREV</A>&nbsp;\n";
+  }
+  else
+    $footer .= "&nbsp;";
+
+  //print links to the pages in range
+  if ($num_pages != 1) {
+
+    $start_page=$page_num-intval(SEARCH_PAGES/2);
+    if($start_page<=0) $start_page=1;
+
+    $end_page=$page_num+intval(SEARCH_PAGES/2);
+    if($end_page>$num_pages) { $end_page=$num_pages; }
+
+    for ($i=$start_page;$i<=$end_page;$i++) {
+      if (($offset < $i*SEARCH_ROWS) && ($offset >= ($i-1)*SEARCH_ROWS)) {
+        $footer .= "<B>" . $i . "</B>&nbsp;";
+      }
+      else {
+        $pagenumber = $i;
+        $newoffset = SEARCH_ROWS * ($i-1);
+        $footer .= "<A HREF=";
+        $footer .= $sess->url(SECUREURL . "?page=$modulename/$pagename&offset=$newoffset&keyword=$keyword$extra");
+        $footer .= ">$pagenumber</A>&nbsp;";
+      }
+    }
+  }
+
+  //print the next page link
+  if (($offset+SEARCH_ROWS < $num_rows) && $num_pages != 1) {
+      $newoffset = $offset + SEARCH_ROWS;
+      $footer .= "<A HREF=";
+      $footer .= $sess->url(SECUREURL . "?page=$modulename/$pagename&offset=$newoffset&keyword=$keyword$extra");
+      $footer .=  ">NEXT</A>\n";
+  }
+  else
+    $footer .= "&nbsp;";
+
+  $footer .= "<BR>";
+
+  // print the first page button
+  if ($offset!=0) {
+    $newoffset=0;
+    $footer .= "<A HREF=". $sess->url(SECUREURL . "?page=$modulename/$pagename&offset=$newoffset&keyword=$keyword$extra");
+    $footer .= " CLASS=\"linkMenu\">&lt; &lt; &lt; FIRST PAGE</A>&nbsp;";
+  }
+
+  // print the previous X pages button
+  if ($offset-(SEARCH_ROWS*SEARCH_PAGES) >= 0) {
+    $newoffset=$offset-(SEARCH_ROWS*SEARCH_PAGES);
+    $footer .= "<A HREF=". $sess->url(SECUREURL . "?page=$modulename/$pagename&offset=$newoffset&keyword=$keyword$extra");
+    $footer .= " CLASS=\"linkMenu\">&lt;&lt; PREV ".SEARCH_PAGES." PAGES</A>&nbsp;";
+  }
+
+  // print the next X pages button
+  if ($offset+(SEARCH_ROWS*SEARCH_PAGES) < $num_rows) {
+    $newoffset=$offset+(SEARCH_ROWS*SEARCH_PAGES);
+    $footer .= "<A HREF=". $sess->url(SECUREURL . "?page=$modulename/$pagename&offset=$newoffset&keyword=$keyword$extra");
+    $footer .= " CLASS=\"linkMenu\">NEXT ".SEARCH_PAGES." PAGES &gt;&gt;</A>&nbsp;";
+  }
+
+  // print the last page button
+  if ($offset+SEARCH_ROWS<$num_rows) {
+    $newoffset=$num_rows;
+    $footer .= "<A HREF=". $sess->url(SECUREURL . "?page=$modulename/$pagename&offset=$newoffset&keyword=$keyword$extra");
+    $footer .= " CLASS=\"linkMenu\">LAST PAGE &gt; &gt; &gt;</A>&nbsp;";
+  }
+
+  $footer .= "</CENTER>";
+
+  echo $footer;
+}
+--<end>--

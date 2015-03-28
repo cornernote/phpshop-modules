@@ -1,0 +1,47 @@
+--------------------------------
+Product Folders for phpShop v0.6
+--------------------------------
+
+
+----
+Info
+----
+
+Module designed by Mr PHP
+W: www.mrphp.com.au
+E: info@mrphp.com.au
+P: +61 418 436 690
+
+
+-----------
+Description
+-----------
+
+Gives a page in your admin to view your products & categories just like files & folders in windows explorer. (nice little folders with [+] and [-] signs in a tree)
+
+
+--------------------
+Install Instructions
+--------------------
+
+1. move classtree into your web directory (same directory as index.php3)
+
+2. move product/html/* into modules/product/html
+
+3. move product/lib/* into modules/product/lib
+
+4. insert this code into modules/product/html/menu.ihtml
+-------------------------------
+  <TR ALIGN="center">
+    <TD><A HREF="<?php $sess->purl(SECUREURL . "?page=$modulename/folders"); ?>">
+        Folders View</A></TD>
+  </TR>
+-------------------------------
+
+5. login, go to Admin > Products > Folders View
+
+
+-------
+Credits
+-------
+Thanks to Marcelino Alves Martins <martins@hks.com> and Patrick Hess <hess@dland.de> for the java script to make the menu tree.

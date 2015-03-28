@@ -1,0 +1,75 @@
+<?php 
+  search_header("Newsletter Letter List", $modulename, "newsletter_letter_list"); 
+?>
+
+<?php 
+  // Enable the multi-page search result display
+  if (empty($offset))
+ 	$offset=0;
+  if ($keyword) {
+     $list  = "SELECT * FROM newsletter_letter WHERE ";
+     $count = "SELECT count(*) as num_rows FROM newsletter_letter WHERE ";
+     $q  = "(letter_subject LIKE '%$keyword%' OR ";
+     $q .= "letter_detail LIKE '%$keyword%'";
+     $q .= ") ";
+     $q .= "ORDER BY letter_id DESC ";
+     $list .= $q . " LIMIT $offset, " . SEARCH_ROWS;
+     $count .= $q;   
+  }
+  else 
+  {
+     $q = "";
+     $list  = "SELECT * FROM newsletter_letter ";
+     $count = "SELECT count(*) as num_rows FROM newsletter_letter ";
+     $list .= $q . " LIMIT $offset, " . SEARCH_ROWS;
+     $count .= $q;   
+  }
+  $db->query($count);
+  $db->next_record();
+  $num_rows = $db->f("num_rows");
+  if ($num_rows == 0) {
+     echo "Your search returned 0 results.<BR>";
+  }
+  else {
+?>
+
+<table width="100%" border="0" cellspacing="0" cellpadding="2" align="center">
+   <tr > 
+    <td width="10%"><b>Subject</b></td>
+    <td width="80%"><b>Detail</b></td>
+    <td width="5%"><b>Complete</b></td>
+    <td width="5%"><b>Edit | Delete</b></td>
+  </tr>
+<?php
+$db->query($list);
+$i = 0;
+while ($db->next_record()) {
+  if ($i++ % 2) 
+     $bgcolor=SEARCH_COLOR_1;
+  else
+     $bgcolor=SEARCH_COLOR_2;
+?>
+<?php
+  if($db->f("letter_done")==1){ 
+    $done="Y"; 
+  }else{ 
+    $done="N"; 
+    $editurl = "<a href=". $sess->url(SECUREURL . "?page=$modulename/newsletter_letter_form&letter_id=". $db->f("letter_id")) .">Edit</a>";
+    $delurl = "<a href=". $sess->url(SECUREURL . "?page=$modulename/newsletter_letter_list&func=newsletterLetterDelete&letter_id=". $db->f("letter_id")) .">Delete</a>";
+  } 
+?>
+  <tr BGCOLOR=<?php echo $bgcolor ?>> 
+    <td><?php $db->p("letter_subject") ?> </td>
+    <td><?php $db->p("letter_detail") ?></td>
+    <td><?php echo $done ?></td>
+    <td>
+      <?php echo "$editurl &nbsp; $delurl"; ?>
+    </td>
+  </tr>
+  <?php } ?> 
+</table>
+
+<?php 
+  search_footer($modulename, "newsletter_letter_list", $offset, $num_rows, $keyword); 
+}
+?>

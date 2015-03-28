@@ -1,0 +1,107 @@
+<?php
+// +----------------------------------------------------------------------+
+// | X-Stats                                                              |
+// | Copyright (c) 2001 BrettODonnell.com. All rights reserved.           |
+// +----------------------------------------------------------------------+
+// | The contents of this file are subject to the Mozilla Public License  |
+// | Version 1.1 (the "License"); you may not use this file except in     |
+// | compliance with the License. You may obtain a copy of the License at |
+// | http://www.mozilla.org/MPL/                                          |
+// |                                                                      |
+// | Software distributed under the License is distributed on an "AS IS"  |
+// | basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See  |
+// | the License for the specific language governing rights and           |
+// | limitations under the License.                                       |
+// |                                                                      |
+// | The Original Code is X-Stats.                                        |
+// |                                                                      |
+// | The Initial Developer of the Original Code is BrettODonnell.com.     |
+// | Portions created by BrettODonnell.com are Copyright (C) 2001         |
+// | BrettODonnell.com. All Rights Reserved.                              |
+// +----------------------------------------------------------------------+
+
+
+function print_my_table($title,$query=" WHERE 1=1 ")
+{
+  global $ps_xstats, $xstats_lbl;
+  $db=new ps_DB;
+  $db1=new ps_DB;
+  $total_pages=$ps_xstats->count($query);
+  $total_hits=$ps_xstats->count("$query group by sid");
+
+  print_box_top($title);
+
+  $q="select *, count(browser) as num from session_stats ";
+  $q.=$query;
+  $q.="group by browser order by num desc";
+  $db->query($q);
+
+  echo "<table border=0 cellpadding=5 cellspacing=0>";
+  echo "
+    <tr>
+      <td>&nbsp;</td>
+      <td><b>";
+  echo $xstats_lbl["browser"];
+  echo "</b></td>
+      <td align=center><b>$xstats_pages_lbl</b></td>
+      <td align=center><b>$xstats_hits_lbl</b></td>
+    </tr>
+  ";
+
+  while($db->next_record())
+  {
+    $browser=$db->f("browser");
+    $browser_image=$db->f("browser_image");
+    $browser_pages=$db->f("num");
+
+    $browser_pages_percent=$ps_xstats->percent($browser_pages,$total_pages);
+
+    $db1->query("select * from session_stats $query and browser='$browser' group by sid");
+    $browser_hits=$db1->num_rows();
+    $browser_hits_percent=$ps_xstats->percent($browser_hits,$total_hits);
+
+    print "
+    <tr>
+      <td><img src=shop_image/xstats/$browser_image.gif></td>
+      <td>$browser</td>
+      <td align=center>$browser_pages ($browser_pages_percent%)</td>
+      <td align=center>$browser_hits ($browser_hits_percent%)</td>
+    </tr>
+    ";
+  }
+
+  echo "
+    <tr>
+      <td>&nbsp;</td>
+      <td><b>";
+  echo $xstats_lbl["totals"];
+  echo "</b></td>
+      <td align=center><b>$total_pages</b></td>
+      <td align=center><b>$total_hits</b></td>
+    </tr>
+  </table>
+  ";
+
+  print_box_bottom();
+
+}
+
+
+
+
+print_my_table($xstats_lbl["top_browser"]);
+
+$q="WHERE DAYOFYEAR(start_time)>(DAYOFYEAR(NOW())-31) ";
+$q.="AND YEAR(start_time)=YEAR(NOW()) ";
+print_my_table($xstats_lbl["last30days"],$q);
+
+$q="WHERE DAYOFYEAR(start_time)=DAYOFYEAR(NOW()) ";
+$q.="AND YEAR(start_time)=YEAR(NOW()) ";
+print_my_table($xstats_lbl["today"],$q);
+
+?>
+
+
+<p align=center>
+<a href=http://www.brettodonnell.com>This php-Shop Module was designed by Brett O'Donnell</a>
+</p>

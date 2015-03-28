@@ -1,0 +1,154 @@
+---------------------------
+X-Stats for phpShop v0.6.1a
+---------------------------
+
+----
+Demo
+----
+
+View the latest demo at http://xstats.coolfreepages.com
+
+----
+News
+----
+
+View the latest news & info at http://www.brettodonnell.com/forum
+
+----
+Info
+----
+
+Module designed by: Brett O'Donnell
+Email: brett@brettodonnell.com
+Website: www.brettodonnell.com
+
+-----------
+Description
+-----------
+
+Knowing what your users are doing is very important.
+I looked for other site stats scripts but none did exactly what i wanted.
+
+This module tracks every hit to every page & records the users IP, the page they are looking at, where they came from, what browser/os they use and the time & date.
+
+From this information my program allows you to analise the following:
+ track visitors - (lists every visitor & every page they visited), 
+ top products - (today, last 30 days, & forever), 
+ top pages - (today, last 30 days, & forever), 
+ top entry pages - (today, last 30 days, & forever), 
+ top exit pages - (today, last 30 days, & forever), 
+ top referers - (today, last 30 days, & forever), 
+ top user addresses - (today, last 30 days, & forever), 
+ browser share - (today, last 30 days, & forever), 
+ os share - (today, last 30 days, & forever), 
+
+AND graphs for hits & page views for days, weeks, months and years.
+
+NEW FEATURE! - YOU CAN NOW CHAT LIVE ONLINE WITH YOUR SHOPPERS !!!
+
+
+Very easy to install and use.
+
+
+--------------------
+Install Instructions
+--------------------
+
+1. download the file from http://www.brettodonnell.com/
+
+2. unzip files into phpshop/modules/
+
+3. change the first line of shop_image/graphs/required.inc to your own $basedir
+
+4. move shop_image into the same directory as index.php3
+
+5. run the stats.sql on your phpshop database: mysql -u username -p phpshop < stats.sql
+
+
+6. in the admin section of phpshop add a new module:
+	Module Name: xstats
+	Module Perms: admin,storeadmin
+	Module Header: header.ihtml
+	Module Footer: footer.ihtml
+	Module Menu: yes
+	Display Order: 10
+	Module Description: Track visitors on your website
+	Language Code: English : Site Stats
+
+
+7. Insert this at the top of your page header (s_header.ihtml & header.ihtml):
+------------------------------------------------------------
+<?php  // Load Hit Tracker
+  eval(load_class("xstats", "ps_xstats"));
+  $ps_xstats = new ps_xstats;    $ps_xstats->addhit();
+?>
+------------------------------------------------------------
+
+
+8. point your browser at /?page=xstats/index
+
+
+
+
+
+-------------------------------
+OPTIONAL LIVE CHAT INSTALLATION
+-------------------------------
+
+9. edit stutter/common.mysql.php to use your database
+
+10. move stutter into the same directory as index.php3
+
+11. in the admin section of phpshop add a new function to xstats module:
+	Function Name: pageShopper
+	Class Name: ps_xstats
+	Class Method: page_shopper
+	Function Description: loads the chat window for you and a shopper on your next page load
+	Function Perms: admin,storeadmin
+
+
+12. Insert this between the <head> tags of your page header (s_header.ihtml & header.ihtml):
+------------------------------------------------------------
+<SCRIPT LANGUAGE="JavaScript">
+<!--
+ function i(p) {
+ remote = window.open("stutter/?room="+p,"remote","width=300,height=400,scrollbars,resizeable=no,toolbar=no,menubar=no");
+  remote.focus();
+ }
+// -->
+</SCRIPT>
+------------------------------------------------------------
+
+
+13. Insert this as your new <body> tag on your page header (s_header.ihtml & header.ihtml):
+------------------------------------------------------------
+<?php $chat_shopper=$ps_xstats->chat_shopper(); ?>
+<body bgcolor="#FFFFFF" <?php echo $chat_shopper; ?>>
+------------------------------------------------------------
+
+
+14. point your browser at /?page=xstats/visitors and start chatting! :)
+
+
+
+-----------------------------
+OPTIONAL DISPLAY INSTALLATION
+-----------------------------
+
+You can change the tables and colours from the language file
+xstats/lib/lang_eng.inc
+
+To display the number of site hits:
+<?php $ps_xstats->count(); ?>
+
+To display the number of site pages loaded:
+<?php $ps_xstats->count("group by sid"); ?>
+
+To display the number of users online:
+<?php $ps_xstats->count_users(); ?>
+
+To display the number of members online:
+<?php $ps_xstats->count_members(); ?>
+
+see xstats/html/index.ihtml for more ideas.
+

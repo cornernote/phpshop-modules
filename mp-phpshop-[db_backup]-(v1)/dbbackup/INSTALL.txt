@@ -1,0 +1,64 @@
+--------------------------------
+Database Backup for phpShop v0.6
+--------------------------------
+
+
+----
+Info
+----
+
+Module designed by Mr PHP
+W: www.mrphp.com.au
+E: info@mrphp.com.au
+P: +61 418 436 690
+
+
+-----------
+Description
+-----------
+
+Backup you entire database!  Just click the link and it prompts you to save your whole database (structure & data) as an SQL text file.
+
+It probes your database as it runs so there is no need to tell it any table or column names.  It's all done on the fly!
+
+
+--------------------
+Install Instructions
+--------------------
+
+1. COPY backup_db.inc INTO /phpshop/modules/admin/lib/
+
+
+2. MAKE A BLANK FILE CALLED blank.ihtml IN /phpshop/modules/store/html/
+
+
+3. ADD THIS FUNCTION TO /phpshop/db/db_mysql.inc
+-----------------------------------------------------------
+  // Returns the number of fields in query
+  function num_fields() {
+
+    if ($this->lid) {
+      return @mysql_numfields($this->qid);
+    }
+    else {
+      return 0;
+    }
+  }
+-----------------------------------------------------------
+
+
+4. in the admin section of phpshop add a new function to admin module:
+        Function Name: sendBackupDB
+        Class Name: backup_db
+        Class Method: send_backup_database
+        Function Description:
+        Function Perms: admin,storeadmin
+
+
+5. ADD THIS LINK TO /phpshop/modules/store/menu.ihtml
+-----------------------------------------------------------
+<A HREF="<?php $sess->purl(URL . "?page=$modulename/blank&func=sendBackupDB&print=1") ?>">Download Database</A>
+-----------------------------------------------------------
+
+
+6. Click on the link you just added

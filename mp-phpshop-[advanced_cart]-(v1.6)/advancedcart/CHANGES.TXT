@@ -1,0 +1,18 @@
+----------
+CHANGE LOG
+----------
+
+
+----
+v1.6
+----
+
+added ability to use standard ps_cart->add() function
+fixed bug in ps_cart->update()
+
+
+----
+v1.5
+----
+
+moved to mrphp

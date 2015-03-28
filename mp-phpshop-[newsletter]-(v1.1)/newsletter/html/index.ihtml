@@ -1,0 +1,3 @@
+<h2><?php echo $module[$modulename]["title"] ?></H2>
+<?php echo $module_description ?>
+

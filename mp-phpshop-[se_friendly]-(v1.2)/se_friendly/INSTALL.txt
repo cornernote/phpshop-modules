@@ -1,0 +1,211 @@
+--------------------
+Install Instructions
+--------------------
+
+---[ COPY ]---
+
+crawler.ihtml -> modules/shop/html/
+s_header_sefadd.ihtml -> modules/templates/
+
+---[ END ]---
+
+
+
+---[ OPEN ]---
+
+htdocs/index.php
+
+---[ FIND ]---
+
+// This is what we work with.
+$vars = $_REQUEST;
+
+---[ BELOW, INSERT ]---
+
+// Translate from SEF URLs
+$temp_get_1 = explode("/",$_SERVER['PATH_INFO']);
+foreach ($temp_get_1 as $value) {
+  list($key,$val) = explode(",",$value);
+  $val = urldecode($val);
+  $HTTP_GET_VARS[$key] = $val;
+  $_REQUEST[$key] = $val;
+  $_GET[$key] = $val;
+  $vars[$key] = $val;
+  $$key = $val;
+}
+
+// convert product name to product id
+if($productname){
+  $product_id = $db->get_field("product","product_name",urldecode($productname),"product_id");
+  $vars["product_id"] = $product_id;
+  $HTTP_GET_VARS["product_id"] = $product_id;
+  $_REQUEST["product_id"] = $product_id;
+  $_GET["product_id"] = $product_id;
+  $$key = $product_id;
+}
+
+// convert category name to category id
+if($category){
+  $category_id = $db->get_field("category","category_url",urldecode($category),"category_id");
+  $vars["category_id"] = $category_id;
+  $HTTP_GET_VARS["category_id"] = $category_id;
+  $_REQUEST["category_id"] = $category_id;
+  $_GET["category_id"] = $category_id;
+}
+
+---[ FIND ]---
+
+if ($page=="shop/flypage" and !$product_id){ $page="shop/browse"; }
+unset($vars2);
+
+---[ ABOVE, INSERT ]---
+
+$vars["page"]=$page=strtr($page, ".", "/");
+
+---[ END ]---
+
+
+
+---[ OPEN ]---
+
+modules/templates/s_header.ihtml
+
+AND
+
+modules/templates/c_header.ihtml
+
+---[ FIND ]---
+
+<title>Washupito's Tiendita</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+---[ REPLACE WITH ]---
+
+<?php require(MODROOT."templates/s_header_sefadd.ihtml"); ?>
+<title><?php echo $page_title; ?></title>
+<base href="<?php if($_SERVER['SERVER_PORT']=="443"){ echo SECUREURL; }else{ echo URL; } ?>">
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta name="description" content="<?php echo $meta_desc; ?>">
+<meta name="keywords" content="<?php echo $meta_key; ?>">
+
+---[ END ]---
+
+
+
+---[ OPEN ]---
+
+modules/templates/header.ihtml
+
+---[ FIND ]---
+
+<title>phpShop Admin</title>
+
+---[ BELOW, INSERT ]---
+
+<base href="<?php if($_SERVER['SERVER_PORT']=="443"){ echo SECUREURL; }else{ echo URL; } ?>">
+
+---[ END ]---
+
+
+
+---[ OPEN ]---
+
+db/db_mysql.inc
+
+---[ FIND ]---
+
+  // Halt and display error message
+  // PRIVATE
+  function halt($msg) {
+
+---[ ABOVE, INSERT ]---
+
+  // returns any field of data from the database
+  function get_field($table, $row_name, $row_id, $field_name) {
+    $db = new ps_DB;
+    $q = "SELECT $field_name FROM $table WHERE $row_name='$row_id'";
+    $db->query($q);
+    if ($db->next_record())
+      return $db->f($field_name);
+    else
+      return False;
+  }
+
+---[ END ]---
+
+
+
+---[ OPEN ]---
+
+modules/admin/lib/ps_session.inc
+
+---[ FIND ]---
+
+  function url($text) {
+
+---[ ABOVE, INSERT ]---
+
+  /**************************************************************************
+  ** name: seurl()
+  ** created by: mrphp.com.au
+  ** description: changes product_id to productname and category_id to category
+  ** parameters: $text - the text to change
+  ** returns: the changed text
+  ***************************************************************************/
+  //makes a URL search engine friendly
+  function seurl($text){
+    $db = new ps_DB;
+    require_once("product/lib/ps_product.inc");
+    require_once("product/lib/ps_product_category.inc");
+    $ps_product = new ps_product;
+    $ps_product_category = new ps_product_category;
+
+    list($domain,$query)=explode("?",$text);
+    $trans_array = array( "/"=>".", "&amp;"=>"/", "&"=>"/", "="=>"," );
+    $query=strtr($query,$trans_array);
+
+    $arr = explode("/",$query);
+    foreach($arr as $value){
+      // replace product_id with product_name
+      list($var,$val) = explode(",",$value);
+      if($var=="product_id"){
+        $product_name = $db->get_field("product","product_id",$val,"product_name");
+        $product_name = urlencode($product_name);
+        $value = "productname,".$product_name;
+      }
+      // replace category_id with category_name
+      if($var=="category_id"){
+        $category_name = $db->get_field("category","category_id",$val,"category_url");
+        $category_name = urlencode($category_name);
+        $value = "category,".$category_name;
+      }
+      // populate the new array
+      $new_arr[] = $value;
+    }
+    $query = implode("/",$new_arr);
+
+    return $domain."index.php/".$query;
+  }
+
+---[ FIND ]---
+
+  function url($text) {
+
+---[ BELOW, INSERT ]---
+
+    if(!strstr($text,"return_args")) $text = $this->seurl($text);
+
+---[ FIND ]---
+
+  function purl($text) {
+
+---[ BELOW, INSERT ]---
+
+    if(!strstr($text,"return_args")) $text = $this->seurl($text);
+
+---[ END ]---
+
+
+
+Point the search engine to:
+http://www.YOURSHOP.com/page,shop.crawler/print,1

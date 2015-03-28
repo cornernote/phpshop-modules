@@ -1,0 +1,127 @@
+<?php
+// +----------------------------------------------------------------------+
+// | X-Stats                                                              |
+// | Copyright (c) 2001 BrettODonnell.com. All rights reserved.           |
+// +----------------------------------------------------------------------+
+// | The contents of this file are subject to the Mozilla Public License  |
+// | Version 1.1 (the "License"); you may not use this file except in     |
+// | compliance with the License. You may obtain a copy of the License at |
+// | http://www.mozilla.org/MPL/                                          |
+// |                                                                      |
+// | Software distributed under the License is distributed on an "AS IS"  |
+// | basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See  |
+// | the License for the specific language governing rights and           |
+// | limitations under the License.                                       |
+// |                                                                      |
+// | The Original Code is X-Stats.                                        |
+// |                                                                      |
+// | The Initial Developer of the Original Code is BrettODonnell.com.     |
+// | Portions created by BrettODonnell.com are Copyright (C) 2001         |
+// | BrettODonnell.com. All Rights Reserved.                              |
+// +----------------------------------------------------------------------+
+
+
+  $db=new ps_DB;
+  $db1=new ps_DB;
+
+  print_box_top($xstats_lbl["visit_detail"]);
+
+  $db1->query("select count(*) as num_pages from session_stats where sid='$sid'");
+  $db1->next_record();
+  $num_pages=$db1->f("num_pages");
+
+  $db1->query("select * from session_stats where sid='$sid'");
+  $db1->next_record();
+
+  $browser=$db1->f("browser");
+  $browser_image=$db1->f("browser_image");
+  $os=$db1->f("os");
+  $os_image=$db1->f("os_image");
+  $addr=$db1->f("addr");
+
+  if($db1->f("referer")){ $referer="<a href=".$db1->f("referer")." target=_blank>".$db1->f("referer")."</a>"; }else{ $referer="Direct Request"; }
+  $start_time=$db1->f("start_time");
+  $start_page=$db1->f("page");
+  if($db1->num_rows()>1){
+    while($db1->next_record())
+    {
+      $end_time=$db1->f("start_time"); 
+      $end_page=$db1->f("page"); 
+    }
+  }else{
+    $end_time=$start_time; 
+    $end_page=$start_page; 
+  }
+
+
+  $visit_length=$ps_xstats->time_difference($start_time,$end_time);
+  $last_page_time=$ps_xstats->time_difference($end_time);
+
+  $average_page_time=sprintf("%.1f",$visit_length/$num_pages);
+
+  print "<b>". $xstats_lbl["addr"] .":</b> $addr<br>";
+  print "<b>". $xstats_lbl["referer"] .":</b> $referer<br>";
+  print "<b>". $xstats_lbl["browser"] .":</b> <img src=shop_image/xstats/$browser_image.gif> $browser<br>";
+  print "<b>". $xstats_lbl["os"] .":</b> <img src=shop_image/xstats/$os_image.gif>$os<br>";
+  print "<b>". $xstats_lbl["start_time"] .":</b> $start_time <b>on page</b> $start_page<br>";
+  print "<b>". $xstats_lbl["end_time"] .":</b> $end_time <b>on page</b> $end_page<br>";
+  print "<b>". $xstats_lbl["visit_time"] .":</b> $visit_length mins<br>";
+  print "<b>". $xstats_lbl["visit_pages"] .":</b> $num_pages<br>";
+  print "<b>". $xstats_lbl["av_page_time"] .":</b> $average_page_time mins<br>";
+  print "<b>". $xstats_lbl["last_page_time"] .":</b> $last_page_time mins ago<br>";
+
+  if($last_page_time<5)
+  {
+    $chat_url=$sess->url(URL . "?page=xstats/user_pages&sid=$sid&func=pageShopper&page_sid=$sid");
+    print "<b><a href=$chat_url>". $xstats_lbl["chat"] ."</a></b><br>";
+  }
+
+  print_box_bottom();
+
+
+
+  print_box_top($xstats_lbl["visit_pages"]);
+
+  $db=new ps_DB;
+  $q = "SELECT * FROM session_stats ";
+  $q.= "where sid='$sid' ";
+  $q.= "ORDER BY start_time DESC";
+  $db->query($q);
+
+
+  echo "<table border=0 cellpadding=5 cellspacing=0>";
+  echo "<tr><th>". $xstats_lbl["start_time"] ."</th><th>". $xstats_lbl["module_page"] ."</th></tr>";
+
+  while($db->next_record())
+  {
+    $extra_info="";
+    $user_id=$db->f("user_id");
+    if($user_id){
+      $db1->query("SELECT username FROM auth_user_md5 WHERE user_id='$user_id'");
+      $db1->next_record();
+      $extra_info.="<b>User Name:</b> ".$db1->f("username")."<br>";
+    }
+    $product_id=$db->f("product_id");
+    if($product_id){
+      $db1->query("SELECT product_name FROM product WHERE product_id='$product_id'");
+      $db1->next_record();
+      $extra_info.="<b>Product Name:</b> ".$db1->f("product_name")."<br>";
+    }
+    $extra_info.="<b>Page Info:</b> ".$db->f("uri")."<br>";
+
+    $page=$db->f("page");
+
+    $start_time=$db->f("start_time");
+
+    print "<tr><td>$start_time</td><td>$page<br><font size=-2>$extra_info</font></td></tr>";
+  }
+
+  echo "</table>";
+
+  print_box_bottom();
+?>
+
+
+<p align=center>
+<a href=http://www.brettodonnell.com>This php-Shop Module was designed by Brett O'Donnell</a>
+</p>

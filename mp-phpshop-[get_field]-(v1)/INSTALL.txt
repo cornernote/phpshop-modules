@@ -1,0 +1,63 @@
+--------------------------
+Get Field for phpShop v0.6
+--------------------------
+
+
+----
+Info
+----
+
+Module designed by Mr PHP
+W: www.mrphp.com.au
+E: info@mrphp.com.au
+P: +61 418 436 690
+
+
+-----------
+Description
+-----------
+
+Gets data from any table on any column in your database.
+
+
+--------------------
+Install Instructions
+--------------------
+
+
+1. Add this function to modules/admin/lib/ps_main.inc
+
+-----------------------------------------------
+/**************************************************************************
+** name: get_field
+** created by: www.mrphp.com.au
+** description: get data from any field on any table
+** parameters: $table - the name of the table
+**             $column - the name of the column you want to get the data from
+**             $key - the primary key of the table (eg: user_id or order_id)
+**             $record_id - the record ID that you want to return
+** returns: data from the specified database field
+***************************************************************************/
+
+function get_field($table, $column, $key, $row) {
+  $db = new ps_DB;
+  $q =  "SELECT $column FROM $table ";
+  $q .= "WHERE $key='$row'";
+  $db->query($q);
+  if ($db->next_record()) {
+     return $db->f($column);
+  }
+  else {
+     return False;
+  }
+}
+-----------------------------------------------
+
+
+2. Use the function like this:
+
+//print the name of product 17
+print get_field("products","product_name","product_id","17");
+
+//print the user_id of user admin
+print get_field("auth_user_md5","user_id","username","admin");

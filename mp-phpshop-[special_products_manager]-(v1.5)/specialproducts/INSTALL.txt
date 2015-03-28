@@ -1,0 +1,186 @@
+-----------------------------------------
+Special Products Manager for phpShop v0.6
+-----------------------------------------
+
+
+----
+Info
+----
+
+Module designed by Mr PHP
+W: www.mrphp.com.au
+E: info@mrphp.com.au
+P: +61 418 436 690
+
+
+-----------
+Description
+-----------
+
+Allows the store admin to feature products (on your front page) and to offer discounts on products.
+
+
+-------
+Install
+-------
+
+COPY featureprod.ihtml INTO /modules/templates/
+
+COPY specialprod.ihtml INTO /modules/product/html/
+
+
+/modules/shop/html/index.ihtml (or wherever you want the featured products)
+#--FIND THIS------------------------------------
+<!-- Begin Navigation -->
+        <TR>
+          <TD BGCOLOR="#000000" ALIGN="CENTER">
+            <TABLE WIDTH="100%" BORDER="0" CELLSPACING="0" CELLPADDING="2" BGCOLOR="#663399">
+              <TR ALIGN="CENTER">
+                <TD><FONT COLOR="#FFFFFF">Featured Items</FONT></TD>
+              </TR>
+            </TABLE>
+          </TD>
+        </TR>
+        <TR ALIGN=CENTER VALIGN="TOP">
+          <TD> <?php
+     $ps_product->show_snapshot("G01");
+?> </TD>
+        </TR>
+        <TR ALIGN=CENTER VALIGN="TOP">
+          <TD><BR>
+            <?php
+          $ps_product->show_snapshot("H01");
+          ?></TD>
+        </TR>
+        <TR ALIGN=CENTER VALIGN="TOP">
+          <TD><BR>
+            <?php
+          $ps_product->show_snapshot("P01");
+          ?></TD>
+        </TR>
+        <?php
+ if ($auth["user_id"]) {
+?> <?php
+  }
+?> <!-- End Navigation -->
+#--REPLACE WITH---------------------------------
+<!-- Begin Navigation -->
+<?php require(MODROOT."templates/featureprod.ihtml"); ?>
+<!-- End Navigation -->
+#--END------------------------------------------
+
+
+
+/modules/product/html/menu.ihtml
+#--FIND THIS------------------------------------
+  <TR ALIGN="center">
+    <TD><A HREF="<?php $sess->purl(SECUREURL . "?page=$modulename/product_inventory"); ?>">
+        <?php echo $product_inventory_mnu ?></A></TD>
+  </TR>
+#--AFTER INSERT---------------------------------
+  <TR ALIGN="center">
+    <TD><A HREF="<?php $sess->purl(SECUREURL . "?page=$modulename/specialprod"); ?>">
+        Special Product Manager</A></TD>
+  </TR>
+#--END------------------------------------------
+
+
+
+/modules/product/lib/ps_product.inc
+#--FIND THIS------------------------------------
+ function get_price($product_id) {
+    global $auth;
+    $db = new ps_DB;
+#--AFTER INSERT---------------------------------
+    // Get the discount value
+    $q = "SELECT * from product WHERE product_id='$product_id'";
+    $db->query($q);
+    if ($db->next_record()) {
+      $discount=$db->f("product_discount_id");
+    }
+#--END------------------------------------------
+
+
+
+/modules/product/lib/ps_product.inc
+#--FIND THIS (multiple)-------------------------
+      $price_info["product_price"]=$db->f("product_price");
+#--REPLACE WITH---------------------------------
+      $price_info["product_price"]=sprintf("%.2f",$db->f("product_price")*(100-$discount)/100);
+#--END------------------------------------------
+
+
+
+/modules/product/lib/ps_product.inc
+#--FIND THIS------------------------------------
+      echo "Price:" . $price["product_price"] . " " . $price["product_currency"];
+#--BEFORE INSERT---------------------------------
+      if($db->f("product_discount_id")>"0"){
+        echo "<font color=red><strike><b>Was:</b> $";
+        printf("%.2f", $price["product_price"]/(100-$db->f("product_discount_id"))*100);
+        echo "</strike></font><br>";
+      }
+#--END------------------------------------------
+
+
+
+/modules/shop/html/flypage.ihtml
+#--FIND THIS------------------------------------
+          <TD> <B>Price - <?php
+      $price = $ps_product->get_price($product_id);
+      if ($price) {
+        echo $price["product_price"] . " " . $price["product_currency"];
+      } else {
+        echo "Call for Pricing";
+      }
+     ?></B> </TD>
+#--REPLACE WITH---------------------------------
+          <TD> <B>Price - <?php
+      $price = $ps_product->get_price($product_id);
+      if($db->f("product_discount_id")>"0"){
+        echo "<font color=red><strike><b>Was:</b> $";
+        printf("%.2f", $price["product_price"]/(100-$db->f("product_discount_id"))*100);        echo "</strike></font><br>";
+      }
+      if ($price) {
+        echo $price["product_price"] . " " . $price["product_currency"];
+      } else {
+        echo "Call for Pricing";
+      }
+     ?></B> </TD>
+#--END------------------------------------------
+
+
+
+/modules/shop/html/browse.ihtml
+#--FIND THIS------------------------------------
+    <td width="10%"><font size="2" color="#000066">Price - <?php
+      $price = $ps_product->get_price($db->f("product_id"));
+        echo $db->f("$product_id");
+      if ($price) {
+        echo $price["product_price"] . " " .  $price["product_currency"];
+      } else {
+        echo "Call for Pricing";
+      }
+     ?></font></td>
+#--REPLACE WITH---------------------------------
+    <td width="10%"><font size="2" color="#000066">Price - <?php
+      $price = $ps_product->get_price($db->f("product_id"));
+      if($db->f("product_discount_id")>"0"){
+        echo "<font color=red><strike><b>Was:</b> $";
+        printf("%.2f", $price["product_price"]/(100-$db->f("product_discount_id"))*100);
+        echo "</strike></font><br>";
+      }
+      if ($price) {
+        echo $price["product_price"] . " " .  $price["product_currency"];
+      } else {
+        echo "Call for Pricing";
+      }
+     ?></font></td>
+#--END------------------------------------------
+
+
+Usage:
+
+ - Enter a percentage discount into Discount Type for products you want discounted. (eg: for 20% discount enter "20")
+
+ - Check the On Special checkbox to feature the product on your front page

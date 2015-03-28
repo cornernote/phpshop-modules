@@ -1,0 +1,31 @@
+----------------------
+Debug for phpShop v0.6
+----------------------
+
+
+----
+Info
+----
+
+Module designed by Mr PHP
+W: www.mrphp.com.au
+E: info@mrphp.com.au
+P: +61 418 436 690
+
+
+-----------
+Description
+-----------
+
+Ever had the debug tell you that a value=Array.  This debug will recurse through each variable so that Arrays inside Arrays will be displayed.
+
+Easy to install and use.
+
+
+--------------------
+Install Instructions
+--------------------
+
+1. Copy debug.ihtml into /modules/msgs/html/
+
+2. Turn on DEBUG in phpshop.cfg

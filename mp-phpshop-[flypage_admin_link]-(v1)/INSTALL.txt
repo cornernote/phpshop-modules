@@ -1,0 +1,60 @@
+-----------------------------------
+Flypage Admin Link for phpShop v0.6
+-----------------------------------
+
+
+----
+Info
+----
+
+Module designed by Mr PHP
+W: www.mrphp.com.au
+E: info@mrphp.com.au
+P: +61 418 436 690
+
+
+-----------
+Description
+-----------
+
+Adds a link to the flypage to get to the product form. 
+
+Adds a link to the product form to get to the flypage. 
+
+
+------------
+Installation
+------------
+
+
+
+/modules/shop/html/flypage.html
+#--FIND THIS-------------------------------------
+            <H3><?php
+            $db->p("product_name");
+           ?></H3>
+#--AFTER INSERT----------------------------------
+            <?php if ($perm->check("admin,storeadmin,demo")): ?>
+            <a href=<?php $sess->purl(SECUREURL . "?page=product/product_form&product_id=$product_id");?>>Edit This Product</a>
+            <?php endif; ?>
+#--END-------------------------------------------
+
+
+
+/modules/product/html/product_form.html
+#--FIND THIS-------------------------------------
+elseif (!$vars["error"]) {
+  $default["product_publish"] = "Y";
+  $default["product_weight_uom"] = "pounds";
+  $default["product_lwh_uom"] = "inches";
+}
+?></B></H2>
+#--AFTER INSERT----------------------------------
+<?php if($product_id): ?>
+  <?php $flypage = $ps_product->get_flypage($product_id); ?>
+  <a href=<?php $sess->purl(SECUREURL."?page=$flypage&product_id=$product_id");?>>View This Product</a>
+<?php endif; ?>
+#--END-------------------------------------------
+
+
+

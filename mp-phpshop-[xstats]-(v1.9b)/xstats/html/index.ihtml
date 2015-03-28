@@ -1,0 +1,131 @@
+<?php
+// +----------------------------------------------------------------------+
+// | X-Stats                                                              |
+// | Copyright (c) 2001 BrettODonnell.com. All rights reserved.           |
+// +----------------------------------------------------------------------+
+// | The contents of this file are subject to the Mozilla Public License  |
+// | Version 1.1 (the "License"); you may not use this file except in     |
+// | compliance with the License. You may obtain a copy of the License at |
+// | http://www.mozilla.org/MPL/                                          |
+// |                                                                      |
+// | Software distributed under the License is distributed on an "AS IS"  |
+// | basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See  |
+// | the License for the specific language governing rights and           |
+// | limitations under the License.                                       |
+// |                                                                      |
+// | The Original Code is X-Stats.                                        |
+// |                                                                      |
+// | The Initial Developer of the Original Code is BrettODonnell.com.     |
+// | Portions created by BrettODonnell.com are Copyright (C) 2001         |
+// | BrettODonnell.com. All Rights Reserved.                              |
+// +----------------------------------------------------------------------+
+
+
+print_box_top($vendor_name ." ". $xstats_lbl["stats"]);
+
+
+$db=new ps_DB;
+
+
+$total_users=$ps_xstats->count_users();
+if($total_users==1){ print "<h2>There is $total_users User "; }
+else{ print "<h2>There are $total_users Users "; }
+
+
+$total_users=$ps_xstats->count_members();
+if($total_users==1){ print "($total_users Member) Online</h2>"; }
+else{ print "($total_users Members) Online</h2>"; }
+
+
+
+$total_hits      =$ps_xstats->count("group by sid");
+$total_hits_month=$ps_xstats->count("WHERE DAYOFYEAR(start_time)>(DAYOFYEAR(NOW())-31) AND YEAR(start_time)=YEAR(NOW()) group by sid");
+$total_hits_day  =$ps_xstats->count("WHERE DAYOFYEAR(start_time)=DAYOFYEAR(NOW()) AND YEAR(start_time)=YEAR(NOW()) group by sid");
+
+$total_pages      =$ps_xstats->count();
+$total_pages_month=$ps_xstats->count("WHERE DAYOFYEAR(start_time)>(DAYOFYEAR(NOW())-31) AND YEAR(start_time)=YEAR(NOW())");
+$total_pages_day  =$ps_xstats->count("WHERE DAYOFYEAR(start_time)=DAYOFYEAR(NOW()) AND YEAR(start_time)=YEAR(NOW())");
+
+$view_time      =$ps_xstats->get_time();
+$view_time_month=$ps_xstats->get_time("WHERE DAYOFYEAR(start_time)>(DAYOFYEAR(NOW())-31) AND YEAR(start_time)=YEAR(NOW())");
+$view_time_day  =$ps_xstats->get_time("WHERE DAYOFYEAR(start_time)=DAYOFYEAR(NOW()) AND YEAR(start_time)=YEAR(NOW())");
+
+$page_time      =$view_time/$total_pages;
+$page_time_month=$view_time_month/$total_pages_month;
+$page_time_day  =$view_time_day/$total_pages_day;
+
+
+print "<table border=0 cellpadding=10 cellspacing=0 align=center><tr align=center><td>";
+
+print "<font size=+2>";
+print $xstats_lbl["hits"];
+print "</font><br>";
+print $xstats_lbl["total"];
+print ": $total_hits<br>";
+print $xstats_lbl["last30days"];
+print ": $total_hits_month<br>";
+print $xstats_lbl["today"];
+print ": $total_hits_day<br>";
+
+print "</td><td>";
+
+print "<font size=+2>";
+print $xstats_lbl["pages"];
+print "</font><br>";
+print $xstats_lbl["total"];
+print ": $total_pages<br>";
+print $xstats_lbl["last30days"];
+print ": $total_pages_month<br>";
+print $xstats_lbl["today"];
+print ": $total_pages_day<br>";
+
+print "</td></tr><tr align=center><td>";
+
+print "<font size=+2>";
+$xstats_lbl["visit_time"];
+print "</font><br>";
+print $xstats_lbl["total"] . ": ";
+printf("%.0f",$view_time/$total_hits);
+print " mins<br>";
+print $xstats_lbl["last30days"] . ": ";
+printf("%.0f",$view_time_month/$total_hits_month);
+print " mins<br>";
+print $xstats_lbl["today"] . ": ";
+printf("%.0f",$view_time_day/$total_hits_day);
+print " mins<br>";
+print "</font>";
+
+print "</td><td>";
+
+print "<font size=+2>";
+$xstats_lbl["page_time"];
+print "</font><br>";
+print $xstats_lbl["total"] . ": ";
+printf("%.1f",$page_time);
+print " mins<br>";
+print $xstats_lbl["last30days"] . ": ";
+printf("%.1f",$page_time_month);
+print " mins<br>";
+print $xstats_lbl["today"] . ": ";
+printf("%.1f",$page_time_day);
+print " mins<br>";
+print "</font>";
+
+print "</td></tr></table>";
+
+
+$db->query("select start_time from session_stats order by start_time limit 1");
+$db->next_record();
+$start_date=$db->f("start_time");
+print "<br><font size=+1>";
+print $xstats_lbl["first_visit"];
+print "<br>$start_date</font>";
+
+
+
+print_box_bottom();
+?>
+
+<p align=center>
+<a href=http://www.brettodonnell.com>This php-Shop Module was designed by Brett O'Donnell</a>
+</p>

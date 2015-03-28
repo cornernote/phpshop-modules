@@ -1,0 +1,176 @@
+<?php
+// ----------------------------------------------------------------------
+// Advanced Cart
+// ----------------------------------------------------------------------
+// Module designed by Mr PHP
+// W: www.mrphp.com.au
+// E: info@mrphp.com.au
+// P: +61 418 436 690
+// ----------------------------------------------------------------------
+// LICENSE
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License (GPL)
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// To read the license please visit http://www.gnu.org/copyleft/gpl.html
+// ----------------------------------------------------------------------
+
+  eval(load_class("product", "ps_product"));
+  $ps_product = new ps_product;
+  eval(load_class("product", "ps_product_category"));
+  $ps_product_category = new ps_product_category;
+  eval(load_class("ISshipping", "ps_intershipper"));
+  $ps_intershipper = new ps_intershipper;
+
+
+  if ($cart["idx"] == 0) {
+     echo $empty_cart;
+     $checkout = False;
+  }
+  else {
+     $checkout = True;
+?>
+<FORM ACTION="<?php echo URL ?>" METHOD=POST>
+  <?php $sess->hidden_session() ?>
+  <INPUT TYPE=HIDDEN NAME=page VALUE=<?php echo $page ?>>
+  <INPUT TYPE=HIDDEN NAME=func VALUE="cartUpdate">
+  <INPUT TYPE=HIDDEN NAME=ship_to_info_id VALUE=<?php echo $ship_to_info_id?> >
+
+<TABLE WIDTH=100% CELLSPACING=0 CELLPADDING=4 BORDER=1>
+<TR ALIGN=LEFT BGCOLOR=<?php echo $cart_header_color?>>
+<TH><?php
+      echo $cart_name;
+     ?></TH>
+<TH><?php
+      echo $cart_sku;
+     ?></TH>
+<TH><?php
+      echo $cart_price;
+     ?></TH>
+<TH><?php
+      echo $cart_quantity;
+     ?></TH>
+<TH><?php
+      echo $cart_subtotal;
+     ?></TH>
+<TH COLSPAN=2 ALIGN=CENTER>Action</TH>
+</TR>
+<?php
+  $total = 0;
+  for ($i=0;$i<$cart["idx"];$i++) {
+    if ($i % 2) $row_color = SEARCH_COLOR_2;
+       else $row_color = SEARCH_COLOR_1;
+?>
+<TR VALIGN=TOP BGCOLOR=<?php echo $row_color ?>>
+<TD><?php
+      // Get product parent id if exists
+      $product_parent_id=$ps_product->get_field($cart[$i]["product_id"],"product_parent_id");
+      // Get flypage for this product
+      $flypage = $ps_product->get_flypage($cart[$i]["product_id"]);
+      // Build URL based on whether item or product
+      if ($product_parent_id)
+         $url = $sess->url(URL . "?page=$flypage&product_id=$product_parent_id");
+      else
+         $url = $sess->url(URL . "?page=$flypage&product_id=" . $cart[$i]["product_id"]);
+      echo "<A HREF=$url>";
+      // Display product name
+      echo "<B>" . $ps_product->get_field($cart[$i]["product_id"], "product_name") . "</B>";
+      echo "</A>";
+      // Display attribute values if this an item
+      if ($product_parent_id) {
+        $db_detail=$ps_product->attribute_sql($cart[$i]["product_id"],$product_parent_id);
+        while ($db_detail->next_record()) {
+           echo "<BR>" . $db_detail->f("attribute_name") . "&nbsp;";
+           echo "(" . $db_detail->f("attribute_value") . ")";
+        }
+      }
+     ?></TD>
+<TD><?php
+      echo $ps_product->get_field($cart[$i]["product_id"], "product_sku");
+     ?></TD>
+<TD><?php
+      $price = $ps_product->get_price($cart[$i]["product_id"]);
+      printf("%.2f", $price["product_price"]);
+     ?></TD>
+<TD>
+  <INPUT TYPE=TEXT SIZE=4 MAXLENGTH=4 NAME=quantity[<?php echo $i; ?>] VALUE=<?php echo $cart[$i]["quantity"];?>>
+</TD>
+<TD><?php
+      $subtotal = $price["product_price"] * $cart[$i]["quantity"];
+      $total += $subtotal;
+      printf("%.2f", $subtotal);
+     ?></TD>
+<TD colspan=2>
+  <a href="<?php $sess->purl(URL."?page=$page&func=cartDelete&product_id=".$cart[$i]["product_id"]); ?>">Delete</a>
+<?php
+      $weight_subtotal = $ps_intershipper->get_weight($cart[$i]["product_id"]);
+      $weight_total += $weight_subtotal;
+  } // End for loop
+?>
+<TR>
+<TD COLSPAN=4 ALIGN=RIGHT>SubTotal:
+</TD>
+<TD COLSPAN=3><?php
+               printf("%.2f", $total);
+               ?>
+</TD>
+</TR>
+<?php if ($auth["user_id"] && $ship_to_info_id) { ?>
+<TR>
+    <TD COLSPAN=4 ALIGN=RIGHT>Tax: </TD>
+<TD COLSPAN=3><?php
+        if ($weight_total !=0 or IS_VIRTUAL_TAX) {
+                $order_taxable = $ps_checkout->calc_order_taxable($vars);
+               $order_tax = $ps_checkout->calc_order_tax($order_taxable, $vars);
+        } else {
+                $order_tax = 0;
+        }
+
+               printf("%.2f", $order_tax);
+               ?>
+</TD>
+</TR>
+<TR>
+    <TD COLSPAN=4 ALIGN=RIGHT>Shipping: </TD>
+<TD COLSPAN=3><?php
+               if (IS_ENABLE AND $weight_total!=0 ) {
+               $order_shipping = $ps_intershipper->get_rate($vars);
+               }
+               else {
+               $order_shipping = 0;
+               }
+               printf("%.2f", $order_shipping);
+               ?>
+</TD>
+</TR>
+<TR>
+    <TD COLSPAN=4 ALIGN=RIGHT>Total: </TD>
+<TD COLSPAN=3><?php
+               $order_total = $order_tax + $order_shipping + $total;
+
+               printf("<B>%.2f</B>", $order_total);
+               ?>
+</TD>
+</TR>
+
+<?php
+     }
+?>
+</TABLE>
+
+<p>
+<center>
+<input type="submit" name="Update" VALUE="Update">
+</center>
+</FORM>
+
+<?php
+ }
+?>

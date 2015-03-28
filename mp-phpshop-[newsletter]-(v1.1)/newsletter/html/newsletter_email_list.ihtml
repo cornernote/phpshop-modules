@@ -1,0 +1,68 @@
+<?php
+  search_header("Newsletter Email List", "product", "newsletter_email_list");
+  // Enable the multi-page search result display
+  if (empty($offset))
+ 	$offset=0;
+
+  // Check to see if this is a search
+  if ($keyword) {
+     $list  = "SELECT * FROM newsletter_email  WHERE ";
+     $count = "SELECT count(*) as num_rows FROM newsletter_email WHERE ";
+     $q .= "(email_name LIKE '%$keyword%' OR ";
+     $q .= "email_address LIKE '%$keyword%'";
+     $q .= ") ";
+     $q .= "ORDER BY email_done, email_address ";
+     $list .= $q . " LIMIT $offset, " . SEARCH_ROWS;
+     $count .= $q;   
+  }
+  else 
+  {
+     $list  = "SELECT * FROM newsletter_email ";
+     $count = "SELECT count(*) as num_rows FROM newsletter_email ";
+     $q     = "ORDER BY email_done, email_address ";
+     $list .= $q . " LIMIT $offset, " . SEARCH_ROWS;
+     $count.= $q;   
+  }
+  $db->query($count);
+  $db->next_record();
+  $num_rows = $db->f("num_rows");
+  if ($num_rows == 0) {
+     echo "Your search returned 0 results.<BR>";
+  }
+  else { ?>
+    <TABLE width="100%" border="0" cellspacing="0" cellpadding="5">
+    <tr>
+     <td width="40%">Name</td>
+     <td width="40%">Email Address</td>
+     <td width="10%">Done</td>
+     <td width="10%">Delete</td>
+    </tr>
+<?php
+    $db->query($list);
+    $i = 0;
+    while ($db->next_record()) {
+      if ($i++ % 2)
+        $bgcolor=SEARCH_COLOR_1;
+      else
+        $bgcolor=SEARCH_COLOR_2;
+?>
+      <tr nowrap bgcolor="<?php echo $bgcolor; ?>">
+       <td>
+       <?php $db->p("email_name"); ?>
+       </td>
+       <td><?php echo $db->f("email_address"); ?></td>
+       <td><?php if($db->f("email_done")==1){ echo "Y"; }else{ echo "N"; } ?></td>
+       <td>
+         <?php $url = SECUREURL . "?page=$modulename/newsletter_email_list&func=newsletterEmailDelete&email_id=" . $db->f("email_id"); ?>
+         <?php echo "<A HREF=\"" . $sess->url($url) . "\">Delete</A>"; ?>
+       </td>
+      </tr>
+<?php
+    } 
+  }
+?>
+</TABLE>
+<?php
+  search_footer($modulename, "product_list", $offset, $num_rows, $keyword);
+?>
+
